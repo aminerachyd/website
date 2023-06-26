@@ -16,11 +16,11 @@ Technically speaking, I'm working with the following technologies:
 
 You can find me on:
 
-- [**Github**](https:://github.com/aminerachyd)
+- [**Github**](https://github.com/aminerachyd)
 
-- [**Twitter**](https:://twitter.com/RachydAmine)
+- [**Twitter**](https://twitter.com/RachydAmine)
 
-- [**LinkedIn**](https:://www.linkedin.com/in/amine-rachyd/)
+- [**LinkedIn**](https://www.linkedin.com/in/amine-rachyd/)
 
 You can also [**email me**](mailto:aminerachyd99@gmail.com)
 
