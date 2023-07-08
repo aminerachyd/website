@@ -2,8 +2,6 @@
 
 I'm Amine, an SRE at Amadeus.
 
-Not much to display on this website. I just wanted to have a webpage where I can put some infos.
-
 My main interests are software in the cloud, automation and containerization, and more generally distributed systems.
 
 Technically speaking, I'm working with the following technologies:
