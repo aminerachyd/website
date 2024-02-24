@@ -24,6 +24,19 @@ theme:
     - navigation.indexes
     - toc.follow
     - navigation.top
+    - navigation.footer
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/aminerachyd
+    - icon: fontawesome/brands/x-twitter
+      link: https://twitter.com/RachydAmine
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/amine-rachyd/
+    - icon: fontawesome/solid/paper-plane
+      link: mailto:aminerachyd99@gmail.com
 
 plugins:
   - offline
