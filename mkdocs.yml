@@ -1,0 +1,31 @@
+site_name: Amine RACHYD
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    toggle:
+      icon: material/brightness-7 
+      name: Switch to dark mode
+    primary: black
+    accent: indigo
+  font:
+    text: Roboto
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.instant.preview
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky # Tabs sticking even if scrolling
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - toc.follow
+    - navigation.top
+
+plugins:
+  - offline
+  - search
+  - awesome-pages

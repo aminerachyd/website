@@ -1,6 +1,6 @@
-# Education 🎓
+## Education 🎓
 
-### 🏫 Grenoble INP - ENSIMAG | 📍Grenoble, France | ⌛ 2021 - 2023
+### Grenoble INP - ENSIMAG | Grenoble, France | <span style="color:blue">2021 - 2023</span>
 
 - Engineering degree in systems and information technology (Ingénierie des systèmes d'information (ISI))
 - Followed a semeter of _Master of Science in Informatics at Grenoble (MoSIG)_, specializing in distributed computing
@@ -15,7 +15,7 @@
 
 ---
 
-# Professional experiences 💻
+## Professional experiences 💻
 
 ### Amadeus | 📍Nice, France | ⏳ April 2023 - Present
 
@@ -42,7 +42,7 @@
 
 ---
 
-# Some academic projects 📚
+## Some academic projects 📚
 
 - Distributed system for data analysis using Kubernetes and Spark, I took mostly part of the Kubernetes part of the project, deploying with Terraform and Ansible
 - IOT project: building an automatic arousing system
@@ -50,7 +50,7 @@
 
 ---
 
-# Technical skills
+## Technical skills
 
 | Topic                    | Skills and tools                                                                       |
 | ------------------------ | -------------------------------------------------------------------------------------- |
@@ -63,7 +63,7 @@
 
 ---
 
-# Miscellaneous
+## Miscellaneous
 
 ### Languages
 

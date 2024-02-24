@@ -1,9 +1,0 @@
-[book]
-authors = ["Amine RACHYD"]
-language = "en"
-multilingual = true
-src = "src"
-title = "Amine's website"
-
-[output.html]
-no-section-label = true
