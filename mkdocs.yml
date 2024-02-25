@@ -22,9 +22,15 @@ theme:
     - navigation.expand
     - navigation.path
     - navigation.indexes
-    - toc.follow
     - navigation.top
     - navigation.footer
+    # Table of content
+    - toc.follow
+    # Code blocks
+    - content.code.copy
+    - content.code.select
+    # Search
+    - search.suggest
 
 extra:
   generator: false
@@ -42,3 +48,15 @@ plugins:
   - offline
   - search
   - awesome-pages
+
+repo_url: https://github.com/aminerachyd/website
+repo_name: aminerachyd/website
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
