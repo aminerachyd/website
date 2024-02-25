@@ -29,9 +29,10 @@ theme:
     # Code blocks
     - content.code.copy
     - content.code.select
+    - content.tabs.link
+    - content.code.annotate
     # Search
     - search.suggest
-
 extra:
   generator: false
   social:
