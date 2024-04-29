@@ -33,3 +33,11 @@ You can also persist this configuration by adding a configuration file under `/e
 ```bash title="/etc/sysctl.d/custom.conf"
 fs.inotify.max_user_instances = 256 
 ```
+---
+### Force dark mode on GTK-3 applications in Gnome DE
+
+Add the following line in your `~/.config/gtk-3.0/settings.ini` file (or create it if it doesn't exist):
+```bash title="~/.config/gtk-3/settings.ini"
+[Settings]
+gtk-application-prefer-dark-theme=1
+```
