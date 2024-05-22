@@ -41,3 +41,20 @@ Add the following line in your `~/.config/gtk-3.0/settings.ini` file (or create 
 [Settings]
 gtk-application-prefer-dark-theme=1
 ```
+---
+### Select power usage profiles using TuneD
+
+You can verify if TuneD is running via the command
+```bash
+systemctl status tuned
+```
+
+You can check the available profiles (and the current one) in TuneD by running the command
+```bash
+tuned-adm profile
+```
+
+To set a profile, use the following command (will require admin privilege)
+```bash
+tuned-adm profile <PROFILE_NAME>
+```
