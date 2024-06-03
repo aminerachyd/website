@@ -8,3 +8,16 @@ spec:
   # [...]
 ```
 ---
+### Make pods resolve DNS queries using custom DNS server 
+
+Under CoreDNS, you can modify the configmap `coredns` in `kube-system` namespace and add the following: 
+```yaml
+data:
+  Corefile: |
+    .:53 {
+        [...]
+        forward . <YOUR_DNS_SERVER_IP>
+        [...]
+    }
+```
+-
