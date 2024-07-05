@@ -58,3 +58,11 @@ To set a profile, use the following command (will require admin privilege)
 ```bash
 tuned-adm profile <PROFILE_NAME>
 ```
+---
+### Syscalls tracing 
+Note: `strace` prints its output to stderr to avoid mixing it with the output of the *traced command*, we need to forward that output to stdout
+
+- Trace filesystem syscalls, replacing all file descriptors by file paths and grepping:
+```bash
+strace -fyrt touch myfile 2>&1 | grep myfile
+```
