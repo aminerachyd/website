@@ -20,4 +20,9 @@ data:
         [...]
     }
 ```
--
+---
+### Validation webhooks in Kubernetes
+
+Kubernetes exposes two resources to validate resources before their creation: `validatingwebhookconfigurations` and `mutatingwebhookconfigurations`.   
+CRDs and operators can define their own webhooks that the API server will call to check whether the resource to be created is valid or not.  
+The order for calling webhook is: mutating webhooks > validating webhook. [Link to doc.](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
