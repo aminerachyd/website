@@ -1,4 +1,4 @@
-### Give pod capability to access host network
+## Give pod capability to access host network
 
 To give pod access to host network, you can enable it via the `hostNetwork` field in the Pod spec:
 ```yaml
@@ -8,7 +8,7 @@ spec:
   # [...]
 ```
 ---
-### Make pods resolve DNS queries using custom DNS server 
+## Make pods resolve DNS queries using custom DNS server 
 
 Under CoreDNS, you can modify the configmap `coredns` in `kube-system` namespace and add the following: 
 ```yaml
@@ -21,7 +21,7 @@ data:
     }
 ```
 ---
-### Validation webhooks in Kubernetes
+## Validation webhooks in Kubernetes
 
 Kubernetes exposes two resources to validate resources before their creation: `validatingwebhookconfigurations` and `mutatingwebhookconfigurations`.   
 CRDs and operators can define their own webhooks that the API server will call to check whether the resource to be created is valid or not.  

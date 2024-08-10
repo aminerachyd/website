@@ -1,4 +1,4 @@
-# Pingora load balancer 
+# Notes: Pingora load balancer 
 
 Pingora is a [rust library](https://github.com/cloudflare/pingora) for creating network services. It was recently released by Cloudflare as an alternative for Nginx.  
 
