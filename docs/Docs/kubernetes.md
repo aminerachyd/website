@@ -87,10 +87,14 @@ metadata:
 spec:
   backupOwnerReference: none
   cluster:
-    name: mypg                # Name of the cluster to backup, the cluster must already exist and be configured for backups
-  method: volumeSnapshot      # Other methods are available, see kubectl explain scheduledbackup.spec.method
+    # Name of the cluster to backup, the cluster must already exist and be configured for backups
+    name: mypg                
+  # Other methods are available, see kubectl explain scheduledbackup.spec.method
+  method: volumeSnapshot      
   online: true
-  schedule: '@every 12h'      # This can take a "cron-like" format, details here: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
+  # This can take a "cron-like" format
+  # more details here: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
+  schedule: '@every 12h'     
   suspend: false
   target: prefer-standby
 ```
@@ -100,11 +104,13 @@ Create a cluster that is configured for backups, and can be recovered using a ba
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: postgresql
-  namespace: postgres
+  # Cluster name, has to match the one used in the backup 
+  name: mypg 
+  namespace: mynamespace
 spec:
   # Other configs redacted
-  # More configurations about creating pg clusters: https://cloudnative-pg.io/documentation/1.16/quickstart/#part-3-deploy-a-postgresql-cluster
+  # More configurations about creating pg clusters:
+  # https://cloudnative-pg.io/documentation/1.16/quickstart/#part-3-deploy-a-postgresql-cluster
 
   # Backup configuration for this database cluster
   backup:
@@ -117,7 +123,9 @@ spec:
   bootstrap:
     recovery:
       backup:
-        name: mypg-scheduled-backup-XXXX # This is the name of the backup object created by the scheduled backup which will be used to restore data to the cluster
+        # This is the name of the backup object 
+        # created by the scheduled backup which will be used to restore data to the cluster
+        name: mypg-scheduled-backup-XXXX 
 ```
 
 Cluster restores are not performed "in-place" on an existing cluster. You can use the data uploaded to the object storage to bootstrap a new cluster from a previously taken backup. The operator will orchestrate the recovery process using the barman-cloud-restore tool (for the base backup) and the barman-cloud-wal-restore tool (for WAL files, including parallel support, if requested).
