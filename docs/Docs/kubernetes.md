@@ -129,3 +129,23 @@ spec:
 ```
 
 Cluster restores are not performed "in-place" on an existing cluster. You can use the data uploaded to the object storage to bootstrap a new cluster from a previously taken backup. The operator will orchestrate the recovery process using the barman-cloud-restore tool (for the base backup) and the barman-cloud-wal-restore tool (for WAL files, including parallel support, if requested).
+
+---
+## Maintain connection (affinity) to a specific pod using services
+
+Services definition can be configured to maintain affinity to a pod using the `spec.sessionAffinity` field:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysvc
+spec:
+  type: LoadBalancer            # Works with ClusterIP and LoadBalancer types
+                                # Doesn't work with Ingress and NodePort configuration 
+
+  sessionAffinity: ClientIP     # Defaults to None
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800     # Duration for which the affinity is kept
+                                # Defaults to 10800 seconds
+```
