@@ -149,3 +149,32 @@ spec:
       timeoutSeconds: 10800     # Duration for which the affinity is kept
                                 # Defaults to 10800 seconds
 ```
+
+---
+### Limit maximum allocatable capacitiy on a Kubernetes node
+
+In the Kubelet configuration (under `/var/lib/kubelet/config.yaml`), add the following with your desired values:
+```yaml
+systemReserved:
+  cpu: "1"
+  memory: "2Gi"
+  # Supports also ephermeral-storage and pid fields
+```
+
+Then restart the Kubelet, the result should be reflected with a `kubectl describe node` in Allocatable field:
+```
+Capacity:
+  cpu:                6
+  ephemeral-storage:  62027756Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             7869036Ki
+  pods:               110
+Allocatable:
+  cpu:                5
+  ephemeral-storage:  57164779835
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             5669484Ki
+  pods:               110
+```
