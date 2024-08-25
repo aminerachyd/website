@@ -1,9 +1,40 @@
+## Professional experiences 💻
+
+### Amadeus | Nice, France | April 2023 - Present
+
+**Service Reliability Engineer (SRE)** in the **Cloud-Native Middleware (CNM)** team, focusing on the **data distribution scope**
+
+- Maintenance of core components that are responsible for file distribution for applications in the Amadeus system
+- Contributions to the development of a cloud-native read-heavy distributed filesystem
+- Operational support (during business hours and on-call) for customers
+
+### IBM | Montpellier, France | February 2022 - August 2022
+
+**DevSecOps engineering intern at the EMEA Ecosystem Lab**
+
+- Creation of a showcase of deploying an application in a hybrid multi-cloud environment using Red Hat OpenShift and IBM Systems (IBM Z and IBM Power)
+- Links: [Github](https://github.com/ibm-ecosystem-lab/multiarch-build-demo-setup) | [Showcase presentation on Youtube](https://www.youtube.com/playlist?list=PLqCUKUlc-fh3sbN5dU0t2m0ZBXGm_HVqa)
+
+### Soft Centre | Rabat, Morocco (Remote) | July 2021 - August 2021
+
+**Web development intern**
+
+- Building a web marketplace in favour of Association Nationale des Ovins et Caprins (ANOC)
+
+### Soft Centre | Rabat, Morocco (Remote) | July 2020 - September 2020
+
+**Web development intern**
+
+- Building a web platform in favour of Office du Développement de la Coopération (ODCO)
+
+---
+
 ## Education 🎓
 
 ### Grenoble INP - ENSIMAG | Grenoble, France | 2021 - 2023
 
 - Engineering degree in systems and information technology (Ingénierie des systèmes d'information (ISI))
-- Followed a semeter of _Master of Science in Informatics at Grenoble (MoSIG)_, specializing in distributed computing
+- Master of Science in Informatics at Grenoble (MoSIG), specializing in distributed computing
 
 ### Institut National des Postes et Télécommunications (INPT) | Rabat, Morocco | 2019 - 2022
 
@@ -12,35 +43,6 @@
 ### Classes préparatoires aux grandes écoles (CPGE) | Rabat, Morocco | 2017 - 2019
 
 - Two years of advanced undergraduate studies in mathematics and physics (MP) at the Moulay Youssef high school
-
----
-
-## Professional experiences 💻
-
-### Amadeus | Nice, France | April 2023 - Present
-
-**Service Reliability Engineer (SRE)** in the **Cloud-Native Middleware (CNM)** team, focusing on the **data distribution scope**
-
-### IBM | Montpellier, France | February 2022 - August 2022
-
-**DevSecOps engineering intern at the EMEA Ecosystem Lab**
-
-- Worked on building a showcase of deploying an application in a hybrid multi-cloud environment using Red Hat OpenShift and IBM Systems (IBM Z and IBM Power)
-- Links: [Github](https://github.com/ibm-ecosystem-lab/multiarch-build-demo-setup) | [Showcase presentation on Youtube](https://www.youtube.com/playlist?list=PLqCUKUlc-fh3sbN5dU0t2m0ZBXGm_HVqa)
-
-### Soft Centre | Rabat, Morocco (Remote) | July 2021 - August 2021
-
-**Web development intern**
-
-- Built a web marketplace in favour of Association Nationale des Ovins et Caprins (ANOC)
-
-### Soft Centre | Rabat, Morocco (Remote) | July 2020 - September 2020
-
-**Web development intern**
-
-- Built a web platform in favour of Office du Développement de la Coopération (ODCO)
-
----
 
 ## Some academic projects 📚
 
