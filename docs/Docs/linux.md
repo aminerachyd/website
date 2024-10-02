@@ -1,4 +1,6 @@
-# Route DNS requests of a subdomain to a specific DNS server
+# Docs: Linux
+
+## Route DNS requests of a subdomain to a specific DNS server
 
 Using systemd-resolved, you can create a file under `/etc/systemd/resolved/resolved.conf.d/`, call it `custom.conf`.
 In this file, add the following:
@@ -13,14 +15,14 @@ Restart systemd-resolved service to reload the configuration:
 sudo systemctl restart systemd-resolved
 ```
 ---
-# Allow Discord to start without checking updates
+## Allow Discord to start without checking updates
 
 Useful when the version in the package manager isn't yet up to date with the latest release. Add the following line in `~/.config/discord/settings.json`:
 ```json title="~/.config.discord/settings.json"
 SKIP_HOST_UPDATE: true
 ```
 ---
-# Too many open files - Failed to initialize inotify
+## Too many open files - Failed to initialize inotify
 
 You can do an ad-hoc raise of the `max_user_instances` parameter:
 ```bash
@@ -34,7 +36,7 @@ You can also persist this configuration by adding a configuration file under `/e
 fs.inotify.max_user_instances = 256 
 ```
 ---
-# Force dark mode on GTK-3 applications in Gnome DE
+## Force dark mode on GTK-3 applications in Gnome DE
 
 Add the following line in your `~/.config/gtk-3.0/settings.ini` file (or create it if it doesn't exist):
 ```bash title="~/.config/gtk-3/settings.ini"
@@ -43,7 +45,7 @@ gtk-application-prefer-dark-theme=1
 ```
 
 ---
-# Select power usage profiles using TuneD
+## Select power usage profiles using TuneD
 
 You can verify if TuneD is running via the command
 ```bash
@@ -61,7 +63,7 @@ tuned-adm profile <PROFILE_NAME>
 ```
 
 ---
-# Syscalls tracing 
+## Syscalls tracing 
 Note: `strace` prints its output to stderr to avoid mixing it with the output of the *traced command*, we need to forward that output to stdout
 
 - Trace filesystem syscalls, replacing all file descriptors by file paths and grepping:
