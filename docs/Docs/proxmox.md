@@ -34,6 +34,7 @@ iface <INTERFACE_NAME> inet static
   gateway z.z.z.z
 ```
 
+---
 ## Troubleshooting rrdcached issue causing Proxmox node in a cluster to randomly become unreachable:
 
 When running a Proxmox cluster, nodes would sometimes streaming this error:

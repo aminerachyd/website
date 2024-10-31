@@ -70,3 +70,12 @@ Note: `strace` prints its output to stderr to avoid mixing it with the output of
 ```bash
 strace -fyrt touch myfile 2>&1 | grep myfile
 ```
+
+---
+## Extract text from a variable
+
+```bash
+$ TOTO=ref/tag/1.2.3
+$ echo ${TOTO#ref/*/} # This pattern-matches the variable and extracts the remaining text
+1.2.3
+```
