@@ -30,19 +30,11 @@ jobs:
         if: success()
         run: |
           echo "${DOCKER_PASSWORD}" | docker login ${DOCKER_REGISTRY} --username "${DOCKER_USERNAME}" --password-stdin
-      - name: Run Buildx x86 (push image)
+      - name: Run Buildx x86 and armv7, push image
         if: success()
         run: |
           docker buildx build \
-          --platform linux/amd64 \
-          --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}_x86 \
-          --file ./Dockerfile \
-          --output type=image,push=true .
-      - name: Run Buildx armv7 (push image)
-        if: success()
-        run: |
-          docker buildx build \
-          --platform linux/arm/v7 \
-          --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}_armv7 \
+          --platform linux/amd64,linux/arm/v7 \
+          --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \
           --file ./Dockerfile \
           --output type=image,push=true .
