@@ -1,7 +1,6 @@
 name: Docker Build/Publish Image
 on:
   push:
-    branches: [master]
     tags:
       - '*.*.*'
 jobs:
