@@ -35,9 +35,9 @@ iface <INTERFACE_NAME> inet static
 ```
 
 ---
-## Troubleshooting rrdcached issue causing Proxmox node in a cluster to randomly become unreachable:
+## RRD cache issue causing Proxmox node to randomly become unreachable
 
-When running a Proxmox cluster, nodes would sometimes streaming this error:
+When running a Proxmox cluster, nodes would sometimes start streaming this error and become unreachable:
 ```
 2024-10-19T11:34:38.064395+02:00 pve1 rrdcached[875]: handle_request_update: Could not read RRD file.
 2024-10-19T11:34:38.064470+02:00 pve1 pmxcfs[895]: [status] notice: RRDC update error /var/lib/rrdcached/db/pve2-storage/pve1/local: -1
