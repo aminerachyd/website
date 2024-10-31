@@ -2,6 +2,8 @@ name: Docker Build/Publish Image
 on:
   push:
     branches: [master]
+    tags:
+      - '*.*.*'
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -10,7 +12,7 @@ jobs:
       DOCKER_IMAGE: aminerachyd/website
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      DOCKER_TARGET_PLATFORM: linux/arm/v7
+      DOCKER_TARGET_PLATFORM: 
     steps:
       - name: Checkout the code
         uses: actions/checkout@v1
@@ -24,16 +26,24 @@ jobs:
         run: |
           echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}        
           echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}        
-          echo ::set-output name=version::${GITHUB_RUN_NUMBER}
+          echo ::set-output name=version::${GITHUB_REF#refs/*/}
       - name: Docker Login
         if: success()
         run: |
           echo "${DOCKER_PASSWORD}" | docker login ${DOCKER_REGISTRY} --username "${DOCKER_USERNAME}" --password-stdin
-      - name: Run Buildx (push image)
+      - name: Run Buildx x86 (push image)
         if: success()
         run: |
           docker buildx build \
-          --platform ${{ steps.prepare.outputs.docker_platform }} \
-          --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \
+          --platform linux/amd64 \
+          --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}_x86 \
+          --file ./Dockerfile \
+          --output type=image,push=true .
+      - name: Run Buildx armv7 (push image)
+        if: success()
+        run: |
+          docker buildx build \
+          --platform linux/arm/v7 \
+          --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}_armv7 \
           --file ./Dockerfile \
           --output type=image,push=true .
