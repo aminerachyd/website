@@ -71,3 +71,5 @@ This returns an access token and an ID token to authenticate against servers
   Notes: Needs a confidential client. The client secret should be given to Proxmox when creating a realm. Users should be autocreated, role assignment however needs to be done manually on Proxmox
 - [pgadmin](https://www.olavgg.com/show/how-to-configure-pgadmin-4-with-oauth2-and-keycloak)
   Notes: The config file can be named `config_system.py` and put in `/etc/pgadmin`. More setup parameters available [here](https://www.pgadmin.org/docs/pgadmin4/development/oauth2.html) 
+- [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/keycloak/)
+  Notes: the `root_url` option has to be set so the URL callback is correct if Grafana is behind a proxy
