@@ -79,3 +79,12 @@ $ TOTO=ref/tag/1.2.3
 $ echo ${TOTO#ref/*/} # This pattern-matches the variable and extracts the remaining text
 1.2.3
 ```
+
+---
+## Resize (extend) disk
+
+```bash
+lsblk # find which disk you want to extend
+growpart /dev/<DISK_NAME> <PARTIITON_NO>
+resize2fs /dev/<DISK_NAME_PARTITION_NO>
+```
