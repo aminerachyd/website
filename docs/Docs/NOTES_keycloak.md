@@ -67,6 +67,7 @@ This returns an access token and an ID token to authenticate against servers
 # Keycloak setup for applications
 
 - [Argo CD](https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/keycloak/)
+  Notes: Watch out for config maps `argocd-cm` and `argocd-rbac-cm`. If you encounter issues about an incorrect redirect URL, check the `url` field in the former. If your user doesn't have sufficient rights after logging, check the `policy.csv` field in the latter.
 - [Proxmox](https://gist.github.com/jakoberpf/d6f519459f7dad3b30f509facdc22445)
   Notes: Needs a confidential client. The client secret should be given to Proxmox when creating a realm. Users should be autocreated, role assignment however needs to be done manually on Proxmox
 - [pgadmin](https://www.olavgg.com/show/how-to-configure-pgadmin-4-with-oauth2-and-keycloak)
