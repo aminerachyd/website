@@ -1,5 +1,18 @@
 # Docs: Kubernetes
 
+## Force delete of namespace
+
+Top answer from [this thread](https://stackoverflow.com/a/53661717)  
+This forces the delete of a namespace stuck in "Terminating" state
+```bash
+(
+NAMESPACE=NAMESPACE_TO_DELETE
+kubectl proxy &
+kubectl get namespace $NAMESPACE -o json |jq '.spec = {"finalizers":[]}' >temp.json
+curl -k -H "Content-Type: application/json" -X PUT --data-binary @temp.json 127.0.0.1:8001/api/v1/namespaces/$NAMESPACE/finalize
+)
+```
+
 ## Give pod capability to access host network
 
 To give pod access to host network, you can enable it via the `hostNetwork` field in the Pod spec:
