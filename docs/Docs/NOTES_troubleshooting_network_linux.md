@@ -27,7 +27,29 @@ no reply: some network devices can be configured to not reply on expired TTL. tr
 `ip r`: routing configuration, for a tabular output: `route -n` (-n for only numbers, otherwise it does DNS lookup)
  
 ### **nmcli**
-Network manager CLI, specific to RHEL-like systems. 
+Network manager CLI, specific to RHEL-like systems.  
+Network manager can also be configured through a TUI via `nmtui`.  
+
+Bond interfaces: Group two network interfaces to work as one. Either both could service the same requests, or one could serve as a failover for the other.  
+
+Some commands: 
+
+```bash
+# Check on current devices
+nmcli device
+
+# Check current interfaces/connections
+nmcli con
+
+# Disable/Enable interface
+nmcli con down/up <INTERFACE>
+
+# Show params of connections
+# Gives many infos, for ex IP was assigned via DHCP: ipv4.method auto or manual
+nmcli con show <INTERFACE>
+```
+
+Changes done via nmcli are persisted on the systems  
 
 ## Anatomy of a ping command
 
