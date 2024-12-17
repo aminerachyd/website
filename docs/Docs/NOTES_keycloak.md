@@ -2,7 +2,7 @@
 
 A default "master" real is available, but it's not considered a good practice to use it
 
-### Some definitions:
+### Some definitions
 
 - **Keycloak realm**: a space where we manage objects: users, applications, roles and groups.
     A realm can shared/used for different applications if they share the same users and roles.
@@ -64,7 +64,7 @@ curl -k -X POST http://<KEYCLOAK_SERVER>/realms/testrealm/protocol/openid-connec
 
 This returns an access token and an ID token to authenticate against servers
 
-# Keycloak setup for applications
+## Keycloak setup for applications
 
 - [Argo CD](https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/keycloak/)
   Notes: Watch out for config maps `argocd-cm` and `argocd-rbac-cm`. If you encounter issues about an incorrect redirect URL, check the `url` field in the former. If your user doesn't have sufficient rights after logging, check the `policy.csv` field in the latter.
