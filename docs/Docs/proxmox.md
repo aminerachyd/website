@@ -32,10 +32,11 @@ iface <INTERFACE_NAME> inet static
   address x.x.x.x
   netmask a.a.a.a
   gateway z.z.z.z
+  ethtool -K $IFACE gso off gro off tso off tx off rx off rxvlan off txvlan off sg off
 ```
 
 ---
-## RRD cache issue causing Proxmox node to randomly become unreachable
+## RRD cache issue
 
 When running a Proxmox cluster, nodes would sometimes start streaming this error and become unreachable:
 ```
