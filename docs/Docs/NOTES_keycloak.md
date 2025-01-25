@@ -74,3 +74,14 @@ This returns an access token and an ID token to authenticate against servers
   Notes: The config file can be named `config_system.py` and put in `/etc/pgadmin`. More setup parameters available [here](https://www.pgadmin.org/docs/pgadmin4/development/oauth2.html) 
 - [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/keycloak/)
   Notes: the `root_url` option has to be set so the URL callback is correct if Grafana is behind a proxy
+- Portainer: oauth configuration
+  - `authorization url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/auth
+  - `access token url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/token
+  - `resource url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/userinfo
+  - `redirect url`: PORTAINER_URL
+  - `logout url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/logout
+  - `user identifier`: preferred_username
+  - `scopes`: openid email profile offline_access roles
+  
+  Make sure to also enable the **automatic user provisioning**
+  
