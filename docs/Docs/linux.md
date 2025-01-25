@@ -88,3 +88,64 @@ lsblk # find which disk you want to extend
 growpart /dev/<DISK_NAME> <PARTIITON_NO>
 resize2fs /dev/<DISK_NAME_PARTITION_NO>
 ```
+
+---
+## Memory diagnosys tools
+
+Miscellanous stuff noted from [this video](https://www.youtube.com/watch?v=HdM04UBNcgE).
+`free`:
+```bash
+# This is printed in mebibytes
+~ free -h
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       2.9Gi        12Gi        15Mi       470Mi        12Gi
+Swap:          4.0Gi          0B       4.0Gi
+```
+
+`vmstat`:
+```bash
+# Gives slightly more info compared to free
+# Info about swap space, io and cpu load
+~ vmstat
+procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st gu
+ 0  0      0 12775648  16132 465752    0    0   150    71  186    0  0  0 100  0  0  0
+
+# Run vmstat 3 times every 2 seconds
+~ vmstat 2 3
+procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st gu
+ 0  0      0 12767436  16812 465808    0    0   148    71  197    0  0  0 100  0  0  0
+ 0  0      0 12768672  16820 465800    0    0     0   212  656 1491  0  0 99  0  0  0
+ 0  0      0 12765212  16820 465808    0    0     0    60  709 1608  0  0 100  0  0  0
+```
+
+`ps`:
+```bash
+# Shows all the processes, users running them and extended informations
+# Some fields:
+# - VSZ: virtual memory size, virtual memory allocated but not necessary all of it is used
+# - RSS: resident set size, an estimate of the amount of the physical memory used by a process. This is an estimate as shared libraries are counted for each process, even though they may be loaded only once.
+~ ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.0  0.0  22404 13492 ?        Ss   18:53   0:00 /sbin/init
+root           2  0.0  0.0   2616  1444 ?        Sl   18:53   0:00 /init
+[...]
+```
+
+`top`:
+Press 1 to print info about all cores load.  
+Interesting fields for memory are VIRT (vm), RES (RSS), SHR (shared memory).  
+
+`swapon`:
+```bash
+# Show all swap disks and their usage
+~ swapon
+NAME      TYPE SIZE USED PRIO
+/var/swap file 512M   0B   -2
+
+~ swapon -s
+Filename                                Type            Size            Used            Priority
+/var/swap                               file            524272          0               -2
+```
+
