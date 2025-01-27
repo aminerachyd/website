@@ -73,7 +73,10 @@ This returns an access token and an ID token to authenticate against servers
 - [pgadmin](https://www.olavgg.com/show/how-to-configure-pgadmin-4-with-oauth2-and-keycloak)
   Notes: The config file can be named `config_system.py` and put in `/etc/pgadmin`. More setup parameters available [here](https://www.pgadmin.org/docs/pgadmin4/development/oauth2.html) 
 - [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/keycloak/)
-  Notes: the `root_url` option has to be set so the URL callback is correct if Grafana is behind a proxy
+  Notes:
+   - The `root_url` option has to be set so the URL callback is correct if Grafana is behind a proxy
+   - The docs suggest using a jmespath expression to determine the role of the user based on their role in Keycloak. The suggested expression is `contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'`. However the `role` attribute may not be effective for Keycloak. In the case of Keycloak, the role to be checked is `resource_access.<CLIENT_ID>.roles`. This is a field which is mapped to the client (can be found at Client scopes > roles > Mappers > client roles > Token Claim Name). In addition to that, this mapping should be added either to ID token or userinfo for it to be effective.
+
 - Portainer: oauth configuration
   - `authorization url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/auth
   - `access token url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/token
