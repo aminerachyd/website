@@ -53,3 +53,95 @@ However, perfomance graphs are lost with this manipulation.
 rm -r /var/lib/rrdcached/db
 systemctl restart rrdcached.service 
 ```
+
+---
+## Intel integrated GPU (iGPU) passthrough to virtual machine
+
+The PCI passthrough setup might highly depend on the hardware you have. My hardware is a Lenovo m720q with an Intel i5-8500T CPU.  
+This has been tested on Proxmox VE 8.3.2.
+
+### Pre-requisites
+
+Make sure your virtual machine runs on the same firmware as your host. If your host uses UEFI and the VM uses BIOS, this won't work.   
+To check whether your host is on UEFI mode, just run: 
+```bash
+ls /sys/firmware/efi/
+```
+
+If it shows that the directory has content, then your host runs on UEFI.  
+If your virtual machine happens to run on BIOS, simply update it to use UEFI using the Hardware tab on Proxmox GUI.
+
+### Setup
+1. Edit GRUB configuration
+
+Edit the file `/etc/default/grub`, update the line:
+```conf
+GRUB_CMDLINE_LINUX_DEFAULT="quiet"
+```
+To:
+```conf
+GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_gvt=1 iommu=pt pcie_acs_override=downstream,multifunction video=efifb:off video=vesa:off vfio_iommu_type1.allow_unsafe_interrupts=1 kvm.ignore_msrs=1 modprobe.blacklist=radeon,nouveau,nvidia,nvidiafb,nvidia-gpu"
+```
+
+The main info is that this enables IOMMU which allows devices to be directly assigned to virtual machines. Devices are grouped in IOMMU groups, and whole groups need to be passed to VMs for the device to be able to function, yet we don't necessarily want to passthrough all devices in a group. `pcie_acs_override` is an option that splits devices onto their own separate IOMMU group. This command also blacklists some drivers from being loaded on boot.  
+
+2. Update GRUB, run: `update-grub`
+3. Add these modules to `/etc/modules`:
+```conf
+vfio
+vfio_iommu_type1
+vfio_pci
+vfio_virqfd
+kvmgt
+```
+
+In short these kernel modules provide support for passing through devices to virtual machins. The last one, `kvmgt` is specific for Intel, it enables GPU virtualization so a GPU can be shared across multiples virtual machines.  
+
+4. Add a file: `/etc/modprobe.d/iommu_unsafe_interrupts.conf` with content:
+```conf
+options vfio_iommu_type1 allow_unsafe_interrupts=1
+```
+This disables a security isolation mechanism in order to have better perfomance when the PCI device is passed through.
+
+5. Add a file: `/etc/modprobe.d/kvm.conf` with content:
+```conf
+options kvm ignore_msrs=1
+```
+
+MSR are Model Specific Registers. This instructs KVM to avoid their emulation when they are being accessed by the virtual machine.
+
+6. Blacklist the GPU drivers, edit the file `/etc/modprobe.d/blacklist.conf` and add:
+```conf
+blacklist radeon
+blacklist nouveau
+blacklist nvidia
+blacklist nvidiafb
+```
+
+This blacklisting is done to prevent the kernel from loading these modules after the system has booted.
+
+7. Add GPU to vfio
+
+List PCI devices and note the GPU PCI number:
+```bash
+root@pve1:~# lspci
+[...]
+00:02.0 VGA compatible controller: Intel Corporation CoffeeLake-S GT2 [UHD Graphics 630]
+[...]
+```
+Then get the GPU vendors number:
+```bash
+root@pve1:~# lspci -n -s 00:02.0
+00:02.0 0300: 8086:3e92
+```
+
+Add then this in the file `/etc/modprobe.d/vfio.conf`:
+```conf   
+options vfio-pci ids=8086:3e92 disable_vga=1
+```
+
+This instructs the VFIO module to take control of the PCI device, essentially making it possible to pass it through to VMs
+
+8. Run `udpate-initramfs -u` and restart
+
+After that, you can add a PCI device to your virtual machine from the Hardware tab on Proxmox GUI. Use the Raw device choice and select the corresponding device. For the Intel iGPU, keep the options `Primary GPU` and `All Functions` unticked.
