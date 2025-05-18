@@ -2,6 +2,17 @@
 
 Hardware used for reference: Lenovo thinkcentre tiny m720q with i5-8500T and 32gb of RAM
 
+## Shrink VM disk size
+
+Reference [from here](https://forum.proxmox.com/threads/decrease-a-vm-disk-size.122430/post-540307).
+
+This has been used mainly to shrink of a VM template which boots off cloud-init, connect to the PVE hosting the template/VM and run the commands:
+```bash
+# The wanted should have the unit, for instance 40g
+lvm lvreduce -L <WANTED_SIZE> pve/<DISK_NAME>
+qm rescan
+```
+
 ## Disabling checksum offloading
 
 - **TCP checksum**: A 16-bit field in the TCP header used for error-checking of the latter, the payload and an IP pseudo-header.
