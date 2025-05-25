@@ -1,4 +1,4 @@
-# Notes: Linux container primitives
+# Linux container primitives
 
 These are notes taken from [this video](https://www.youtube.com/watch?v=x1npPrzyKfs).
 The demos are done via Docker, the notes here are using Podman instead.

@@ -1,4 +1,4 @@
-# Docs: Kubernetes
+# Kubernetes
 
 ## Force delete of namespace
 

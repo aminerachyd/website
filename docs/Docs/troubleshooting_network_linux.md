@@ -1,4 +1,4 @@
-# Notes: Troubleshooting linux networking
+# Troubleshooting linux networking
 
 Notes from [this livestream](https://www.youtube.com/live/dHa2Bja85U0)
 

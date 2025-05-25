@@ -1,4 +1,4 @@
-# Docs: Proxmox
+# Proxmox
 
 Hardware used for reference: Lenovo thinkcentre tiny m720q with i5-8500T and 32gb of RAM
 

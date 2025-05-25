@@ -1,4 +1,4 @@
-# Docs: Git
+# Git
 
 ## Look for a line in commit history
 

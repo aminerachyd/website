@@ -1,4 +1,4 @@
-# Docs: Linux
+# Linux
 
 ## Route DNS requests of a subdomain to a specific DNS server
 

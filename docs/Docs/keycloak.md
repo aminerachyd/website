@@ -1,4 +1,4 @@
-# Notes: Keycloak
+# Keycloak
 
 A default "master" real is available, but it's not considered a good practice to use it
 

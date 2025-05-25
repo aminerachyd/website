@@ -1,4 +1,4 @@
-# Docs: Wireguard
+# Wireguard
 
 This documents the installation of a wireguard VPN on client and server.  
 The server is running RHEL9.  
