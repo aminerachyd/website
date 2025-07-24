@@ -1,5 +1,79 @@
 # Linux
 
+## systemd explained
+
+Notes from (this video)[https://www.youtube.com/watch?v=Kzpm-rGAXos].
+
+The init system manages all services that run in the background.  
+
+### Units
+Unit: anything systemd can manage, for example: service, timers, mounts, automounts...
+
+Some commands to manage services:
+```bash
+# To inspect running services:
+systemctl status
+
+# To restart a service (requires sudo)
+systemctl restart httpd
+
+# To start/stop a service (requires sudo)
+systemctl start/stop httpd
+
+# To enable/disable a service to start automatically (requires sudo)
+systemctl enable/disable httpd
+```
+
+### systemd file structure
+
+Service files can be found on:
+- /etc/systemd/system => For manually installed units
+- /run/systemd/system => For runtime system units
+- /lib/systemd/system => For installed service files; if a package comes with a service file. Not advised to be modified manually as they could be overwritten by the package manager
+
+The previous ordering determines priority of unit files to be started by systemd.
+
+### systemd unit file structure
+
+The file is case sensitive.  
+3 primary sections:
+- Unit: General info about the unit
+  - Description: What the unit is for
+  - Wants: Pre-req unit that is required before this unit can start up
+  - After: Determines the order of pre-req units
+  - Documentation: Doc source of the unit
+- Service: Configuration specific to service files
+  - Type: simple/notify: default service type. How systemd should assume if a system is running (simple: no assumption, notify: the program talks to systemd)
+  - ExecStart: What happens when process is started up
+  - ExecStop: What happens when process is stopped
+  - ExecReload: What happens when process is reloaded (sudo systemctl reload), not a full restart of the service. Reload configuration changes. Not always available in services
+- Install: Not required, what happens when a unit file is enabled/disabled
+  - WantedBy: Dependency relationship. 
+
+### Customizing unit files
+
+- Overriding an existing system file
+```bash
+systemctl edit httpd.service
+```
+Creates an override file in /etc/systemd/sytem/httpd.service.d/ (remember the priority).
+Make sure to edit before the discarding line.
+To undo the change, simply rm the override file.
+
+To start with the entire service file, instead of an empty override:
+```bash
+systemctl edit --full httpd.service
+```
+This time, the new file is stored directly as /etc/systemd/system/http.service.
+
+### Reloading services
+
+This will reload systemd to take into account all changes that we made in unit files.
+Any time we make changes to a unit file:
+```bash
+systemctl daemon-reload
+```
+
 ## Route DNS requests of a subdomain to a specific DNS server
 
 Using systemd-resolved, you can create a file under `/etc/systemd/resolved/resolved.conf.d/`, call it `custom.conf`.
