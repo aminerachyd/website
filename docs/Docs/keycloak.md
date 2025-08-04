@@ -75,7 +75,11 @@ This returns an access token and an ID token to authenticate against servers
 - [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/keycloak/)
   Notes:
    - The `root_url` option has to be set so the URL callback is correct if Grafana is behind a proxy
-   - The docs suggest using a jmespath expression to determine the role of the user based on their role in Keycloak. The suggested expression is `contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'`. However the `role` attribute may not be effective for Keycloak. In the case of Keycloak, the role to be checked is `resource_access.<CLIENT_ID>.roles`. This is a field which is mapped to the client (can be found at Client scopes > roles > Mappers > client roles > Token Claim Name). In addition to that, this mapping should be added either to ID token or userinfo for it to be effective.
+   - The docs suggest using a jmespath expression to determine the role of the user based on their role in Keycloak. The suggested expression is `contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'`. However the `role` attribute may not be effective for Keycloak. In the case of Keycloak, the role to be checked is `resource_access.<CLIENT_ID>.roles`. This is a field which is mapped to the client (can be found at Client scopes > roles > Mappers > client roles > Token Claim Name). In addition to that, this mapping should be added either to ID token or userinfo for it to be effective.  
+- Immich: oauth configuration in Keycloak
+  - Enable confidential client (client authentication checked).
+  - Anthentication flow > Standard flow (checked).
+  - Keep everything else unchecked.
 
 - Portainer: oauth configuration
   - `authorization url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/auth
