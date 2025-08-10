@@ -1,5 +1,55 @@
 # Linux
 
+## unknown filesystem type 'binfmt_misc'
+
+Encountered this error when I restarted my Raspberry Pi.
+I have a cronjob setup on RPI to periodically install updates, so something probably went wrong on that front.
+
+### What is binfmt_misc ?
+
+A special filesystem used for running binaries in formats other the native one (typically running x86 binaries with QEMU on the ARM RPI).
+
+### Symtoms
+
+- Couldn't connect to RPI over wifi (NetworkManager down)
+- Docker daemon unable to start 
+- Some services down, notably: `proc-sys-fs-binfmt_misc.automount` and `systemd-binfmt.service`
+
+The first service is the one responsible for mounting /sys/proc/fs/binfmt_misc, and it failed by printing the error:
+`unknown filesystem type 'binfmt_misc'`.
+
+This typically means that the filesytem is not recognized.
+
+When we check if it's loaded with modprobe, we get the error:
+```bash
+# modprobe binfmt_misc
+modprobe: FATAL: Module binfmt_misc not found in directory /lib/modules/6.12.34+rpt-rpi-2712
+
+```
+
+```bash
+# ls /lib/modules/$(uname -r)/kernel/fs/binfmt_misc/
+```
+This returns a "No such file or directory".
+
+The module is then not loaded and not present. Now we check the kernel config to see if it's directly supported by the kernel, or supported as a module:
+```bash
+# grep BINFMT_MISC /boot/config-$(uname -r)
+CONFIG_BINFMT_MISC=m
+```
+
+It is supported as a module (vs `y` where it would be built into the kernel).
+
+### Fix
+
+Reinstall of RPI kernel and reboot:
+```bash
+sudo apt install --reinstall raspberrypi-kernel
+sudo reboot
+```
+
+Alternatively, the kernel module could be downloaded and installed separately without re-installing the whole kernel.
+
 ## systemd explained
 
 Notes from (this video)[https://www.youtube.com/watch?v=Kzpm-rGAXos].
