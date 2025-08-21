@@ -52,7 +52,7 @@ Alternatively, the kernel module could be downloaded and installed separately wi
 
 ## systemd explained
 
-Notes from (this video)[https://www.youtube.com/watch?v=Kzpm-rGAXos].
+Notes from [this video](https://www.youtube.com/watch?v=Kzpm-rGAXos).
 
 The init system manages all services that run in the background.  
 
