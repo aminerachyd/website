@@ -7,6 +7,7 @@ Hardware used for reference: Lenovo thinkcentre tiny m720q with i5-8500T and 32g
 Reference [from here](https://forum.proxmox.com/threads/decrease-a-vm-disk-size.122430/post-540307).
 
 This has been used mainly to shrink of a VM template which boots off cloud-init, connect to the PVE hosting the template/VM and run the commands:
+
 ```bash
 # The wanted should have the unit, for instance 40g
 lvm lvreduce -L <WANTED_SIZE> pve/<DISK_NAME>
@@ -22,11 +23,13 @@ This can be problematic if packets are intercepted before being transmitted by t
 This issue also occurs in virtualized environments where a virtual device driver may omit the checksum calculation (as an optim), knowing that the calculation will be later done by the VM host kernel or its physical hardware. [source](https://en.wikipedia.org/wiki/Transmission_Control_Protocol#Checksum_offload)
 
 To disable it, get the network interface which you're using, and run the following command:
+
 ```bash
 ethtool -K <INTERFACE_NAME> gso off gro off tso off tx off rx off rxvlan off txvlan off sg off
 ```
 
 You can persist it by writing in `/etc/network/interfaces`:
+
 ```bash
 auto <INTERFACE_NAME>
 iface <INTERFACE_NAME> inet static
@@ -47,9 +50,11 @@ iface <INTERFACE_NAME> inet static
 ```
 
 ---
+
 ## RRD cache issue
 
 When running a Proxmox cluster, nodes would sometimes start streaming this error and become unreachable:
+
 ```
 2024-10-19T11:34:38.064395+02:00 pve1 rrdcached[875]: handle_request_update: Could not read RRD file.
 2024-10-19T11:34:38.064470+02:00 pve1 pmxcfs[895]: [status] notice: RRDC update error /var/lib/rrdcached/db/pve2-storage/pve1/local: -1
@@ -60,12 +65,14 @@ This usually means that the time of a node is out of sync or/and in the future.
 
 A simple solution would be to [delete the RRD cache directory restart the service](https://forum.proxmox.com/threads/strange-rrd-error.102139/):
 However, perfomance graphs are lost with this manipulation.
+
 ```bash
 rm -r /var/lib/rrdcached/db
 systemctl restart rrdcached.service 
 ```
 
 ---
+
 ## Intel integrated GPU (iGPU) passthrough to virtual machine
 
 The PCI passthrough setup might highly depend on the hardware you have. My hardware is a Lenovo m720q with an Intel i5-8500T CPU.  
@@ -73,8 +80,9 @@ This has been tested on Proxmox VE 8.3.2.
 
 ### Pre-requisites
 
-Make sure your virtual machine runs on the same firmware as your host. If your host uses UEFI and the VM uses BIOS, this won't work.   
-To check whether your host is on UEFI mode, just run: 
+Make sure your virtual machine runs on the same firmware as your host. If your host uses UEFI and the VM uses BIOS, this won't work.
+To check whether your host is on UEFI mode, just run:
+
 ```bash
 ls /sys/firmware/efi/
 ```
@@ -83,13 +91,17 @@ If it shows that the directory has content, then your host runs on UEFI.
 If your virtual machine happens to run on BIOS, simply update it to use UEFI using the Hardware tab on Proxmox GUI.
 
 ### Setup
+
 1. Edit GRUB configuration
 
 Edit the file `/etc/default/grub`, update the line:
+
 ```conf
 GRUB_CMDLINE_LINUX_DEFAULT="quiet"
 ```
+
 To:
+
 ```conf
 GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_gvt=1 iommu=pt pcie_acs_override=downstream,multifunction video=efifb:off video=vesa:off vfio_iommu_type1.allow_unsafe_interrupts=1 kvm.ignore_msrs=1 modprobe.blacklist=radeon,nouveau,nvidia,nvidiafb,nvidia-gpu"
 ```
@@ -98,6 +110,7 @@ The main info is that this enables IOMMU which allows devices to be directly ass
 
 2. Update GRUB, run: `update-grub`
 3. Add these modules to `/etc/modules`:
+
 ```conf
 vfio
 vfio_iommu_type1
@@ -109,12 +122,15 @@ kvmgt
 In short these kernel modules provide support for passing through devices to virtual machins. The last one, `kvmgt` is specific for Intel, it enables GPU virtualization so a GPU can be shared across multiples virtual machines.  
 
 4. Add a file: `/etc/modprobe.d/iommu_unsafe_interrupts.conf` with content:
+
 ```conf
 options vfio_iommu_type1 allow_unsafe_interrupts=1
 ```
+
 This disables a security isolation mechanism in order to have better perfomance when the PCI device is passed through.
 
 5. Add a file: `/etc/modprobe.d/kvm.conf` with content:
+
 ```conf
 options kvm ignore_msrs=1
 ```
@@ -122,6 +138,7 @@ options kvm ignore_msrs=1
 MSR are Model Specific Registers. This instructs KVM to avoid their emulation when they are being accessed by the virtual machine.
 
 6. Blacklist the GPU drivers, edit the file `/etc/modprobe.d/blacklist.conf` and add:
+
 ```conf
 blacklist radeon
 blacklist nouveau
@@ -134,20 +151,24 @@ This blacklisting is done to prevent the kernel from loading these modules after
 7. Add GPU to vfio
 
 List PCI devices and note the GPU PCI number:
+
 ```bash
 root@pve1:~# lspci
 [...]
 00:02.0 VGA compatible controller: Intel Corporation CoffeeLake-S GT2 [UHD Graphics 630]
 [...]
 ```
+
 Then get the GPU vendors number:
+
 ```bash
 root@pve1:~# lspci -n -s 00:02.0
 00:02.0 0300: 8086:3e92
 ```
 
 Add then this in the file `/etc/modprobe.d/vfio.conf`:
-```conf   
+
+```conf
 options vfio-pci ids=8086:3e92 disable_vga=1
 ```
 

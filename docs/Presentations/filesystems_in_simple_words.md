@@ -10,10 +10,10 @@ File systems are the brain that understands how to **store and retrieve** files 
 
 Storage mediums include and are not limited to:
 
- - Hard drives (HDD)
- - Flash drives (SSD)
- - USB sticks
- - ...
+- Hard drives (HDD)
+- Flash drives (SSD)
+- USB sticks
+- ...
 
 ## Everything is a file
 

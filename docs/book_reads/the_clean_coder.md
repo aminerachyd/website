@@ -1,6 +1,7 @@
 Written on 2023-07-09
 
 ----
+
 # The Clean Coder
 
 It's a book written by Robert C. Martin (Uncle Bob) in which he explains some guidelines as to how to become a *professional*, the book might target mainly programmers but it has a set of advises and feedbacks that could be valuable even for someone outside of the software development, IT and tech fields.
@@ -13,8 +14,8 @@ These are *some* interesting points I noted while reading the book are the follo
 ### Be a team player
 
 I think that everything in this book revolves around this special notion (and being a *professional* of course).
-In a company/project configuration, you will most likely be working with a team. In order to produce value, this team has to work in an effective manner. Part of this is possible if all the members are *team players*. Team playing will be about seeking to do good and deliver correct software, but this might induce some tension or rivalry between team members, or between team members and their management. 
-They are not trying to be mean to each other, but they each try to pull the strings to their favour; **managers and product owners** want to have the product delivered fast, respecting deadline. **Professional developers** want to deliver *good software* at the cost of maybe delaying the release or not having every feature delivered in time.      
+In a company/project configuration, you will most likely be working with a team. In order to produce value, this team has to work in an effective manner. Part of this is possible if all the members are *team players*. Team playing will be about seeking to do good and deliver correct software, but this might induce some tension or rivalry between team members, or between team members and their management.
+They are not trying to be mean to each other, but they each try to pull the strings to their favour; **managers and product owners** want to have the product delivered fast, respecting deadline. **Professional developers** want to deliver *good software* at the cost of maybe delaying the release or not having every feature delivered in time.
 
 ### Learn to say no
 

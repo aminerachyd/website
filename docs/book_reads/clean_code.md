@@ -1,6 +1,7 @@
 Written on 2023-07-19
 
 ----
+
 # Clean code
 
 Robert C. Martin (Uncle Bob) discusses in this book the cleanliness of code, and how it's important to have some guidelines that every professional (ie [clean coder](src/book_reads/the_clean_coder)) should follow in order to produce code that is clean, easy to maintain and easy to read.
@@ -30,6 +31,7 @@ This is a very well known principle called SRP (Single Responsibility Principle)
 Smallness also occurs when talking about function arguments. Ideally, a function should contain no arguments, and at most 3. If a function accepts many arguments, that may be a sign that these arguments need to be regrouped in their data structure or class.
 
 A couple honourable mentions of some other principles:
+
 - DRY: Don't repeat yourself, code that is being replicated across multiple functions/classes should be extracted into it's own single function
 - OCP: Open-Closed principle, classes should be open for extension, but closed for modification. This comes into play when using heritage and interfaces, new functionalities shouldn't change existing classes, but rather rely on interfaces and abstract methods to implement their needs.
 - DIP: Dependency Inversion Principle, this states that classes should depend on interfaces, not on other classes. Interfaces define the boundaries of each class, and each class manages internally how it is compliant to its interface. It's internal mechanisms are implementation details that are subject to change and that no other external class should know about.

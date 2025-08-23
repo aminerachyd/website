@@ -4,6 +4,7 @@
 
 Top answer from [this thread](https://stackoverflow.com/a/53661717)  
 This forces the delete of a namespace stuck in "Terminating" state
+
 ```bash
 (
 NAMESPACE=NAMESPACE_TO_DELETE
@@ -16,16 +17,20 @@ curl -k -H "Content-Type: application/json" -X PUT --data-binary @temp.json 127.
 ## Give pod capability to access host network
 
 To give pod access to host network, you can enable it via the `hostNetwork` field in the Pod spec:
+
 ```yaml
 spec:
   # [...]
   hostNetwork: true
   # [...]
 ```
----
-## Make pods resolve DNS queries using custom DNS server 
 
-Under CoreDNS, you can modify the configmap `coredns` in `kube-system` namespace and add the following: 
+---
+
+## Make pods resolve DNS queries using custom DNS server
+
+Under CoreDNS, you can modify the configmap `coredns` in `kube-system` namespace and add the following:
+
 ```yaml
 data:
   Corefile: |
@@ -35,7 +40,9 @@ data:
         [...]
     }
 ```
+
 ---
+
 ## Running containers with a VPN
 
 Kubernetes pods regroup containers which share the same network namespace.
@@ -43,6 +50,7 @@ This essentially means that if a container is connected to a VPN, the containers
 
 1. Run your "VPN" container. [Gluetun](https://github.com/qdm12/gluetun) is a cool project which lets you run a container that connects to a particular VPN provider (multiple ones supported).  
    You can configure it as follows with env variables, for example with [Mullvad VPN](https://mullvad.net):
+
    ```yaml
    env:
    - name: VPN_SERVICE_PROVIDER
@@ -54,6 +62,7 @@ This essentially means that if a container is connected to a VPN, the containers
    ```
 
    The Gluetun container has also to be privileged and be explicitly given the NET_ADMIN capability. This can be done through the securityContext field in the pod spec:
+
    ```yaml
    securityContext:
      privileged: true
@@ -64,13 +73,15 @@ This essentially means that if a container is connected to a VPN, the containers
 2. Run your desired container alongside it.
 
 ---
+
 ## Validation webhooks in Kubernetes
 
-Kubernetes exposes two resources to validate resources before their creation: `validatingwebhookconfigurations` and `mutatingwebhookconfigurations`.   
+Kubernetes exposes two resources to validate resources before their creation: `validatingwebhookconfigurations` and `mutatingwebhookconfigurations`.
 CRDs and operators can define their own webhooks that the API server will call to check whether the resource to be created is valid or not.  
 The order for calling webhook is: mutating webhooks > validating webhook. [Link to doc.](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 
 ---
+
 ## Volume snapshots
 
 Reference to doc: [Volume snapshots](https://kubernetes.io/docs/concepts/storage/volume-snapshots/)
@@ -78,6 +89,7 @@ Reference to doc: [Volume snapshots](https://kubernetes.io/docs/concepts/storage
 ### Definition
 
 `VolumeSnapshots` and `VolumeSnapshotContent` are resources that are analogous to `PersistentVolumeClaim` and `PersistentVolume`.
+
 - A `VolumeSnapshot` is a request to create a `VolumeSnapshotContent`
 - A `VolumeSnapshotContent` is a snapshot taken from a volume in the cluster
 
@@ -98,8 +110,9 @@ parameters:
 Volume snapshots provide a standardized way of copying a volume's data without creating a new volume, this is handy for example to backup databases before performing edits.
 
 The deployment process of `VolumeSnapshot` includes two additional resources:
-  - A snapshot controller, watches `VolumeSnapshot` and `VolumeSnapshotContent` resources and is responsible for the creation and deletion of the latter.
-  - A CSI snapshotter, watches `VolumeSnapshotContent` and is responsible for triggering `CreateSnapshot` and `DeleteSnapshot` operations against a CSI endpoint.
+
+- A snapshot controller, watches `VolumeSnapshot` and `VolumeSnapshotContent` resources and is responsible for the creation and deletion of the latter.
+- A CSI snapshotter, watches `VolumeSnapshotContent` and is responsible for triggering `CreateSnapshot` and `DeleteSnapshot` operations against a CSI endpoint.
 
 Data from a snapshot can be restored into a volume via the `dataSource` field in a `PersistentVolumeClaim` object.
 
@@ -114,6 +127,7 @@ Data from a snapshot can be restored into a volume via the `dataSource` field in
 - Delete: triggered by deleting the `VolumeSnapshot` resource. The underlying snapshot and `VolumeSnapshotContent` are kept depending on the `DeletionPolicy` (can be set to `Delete` or `Retain`)
 
 ---
+
 ## Cloudnative Postgres operator
 
 Cloudnative Postgres is an operator that manages the lifecycle of Postgres databases (and cluster) in a Kubernetes cluster.
@@ -121,6 +135,7 @@ Cloudnative Postgres is an operator that manages the lifecycle of Postgres datab
 Database backups are performed via special resources, `backup` and `scheduledbackup` which create `volumesnapshots` that can be used later on to recover data in a newly initiated cluster.
 
 Create a scheduled backup object:
+
 ```yaml
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
@@ -143,6 +158,7 @@ spec:
 ```
 
 Create a cluster that is configured for backups, and can be recovered using a backup:
+
 ```yaml
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
@@ -174,9 +190,11 @@ spec:
 Cluster restores are not performed "in-place" on an existing cluster. You can use the data uploaded to the object storage to bootstrap a new cluster from a previously taken backup. The operator will orchestrate the recovery process using the barman-cloud-restore tool (for the base backup) and the barman-cloud-wal-restore tool (for WAL files, including parallel support, if requested).
 
 ---
+
 ## Maintain connection (affinity) to a specific pod using services
 
 Services definition can be configured to maintain affinity to a pod using the `spec.sessionAffinity` field:
+
 ```yaml
 apiVersion: v1
 kind: Service
@@ -194,9 +212,11 @@ spec:
 ```
 
 ---
+
 ## Limit maximum allocatable capacity on a Kubernetes node
 
 In the Kubelet configuration (under `/var/lib/kubelet/config.yaml`), add the following with your desired values:
+
 ```yaml
 systemReserved:
   cpu: "1"
@@ -205,6 +225,7 @@ systemReserved:
 ```
 
 Then restart the Kubelet, the result should be reflected with a `kubectl describe node` in Allocatable field:
+
 ```
 Capacity:
   cpu:                6

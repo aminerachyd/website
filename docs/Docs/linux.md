@@ -12,7 +12,7 @@ A special filesystem used for running binaries in formats other the native one (
 ### Symtoms
 
 - Couldn't connect to RPI over wifi (NetworkManager down)
-- Docker daemon unable to start 
+- Docker daemon unable to start
 - Some services down, notably: `proc-sys-fs-binfmt_misc.automount` and `systemd-binfmt.service`
 
 The first service is the one responsible for mounting /sys/proc/fs/binfmt_misc, and it failed by printing the error:
@@ -21,6 +21,7 @@ The first service is the one responsible for mounting /sys/proc/fs/binfmt_misc, 
 This typically means that the filesytem is not recognized.
 
 When we check if it's loaded with modprobe, we get the error:
+
 ```bash
 # modprobe binfmt_misc
 modprobe: FATAL: Module binfmt_misc not found in directory /lib/modules/6.12.34+rpt-rpi-2712
@@ -30,9 +31,11 @@ modprobe: FATAL: Module binfmt_misc not found in directory /lib/modules/6.12.34+
 ```bash
 # ls /lib/modules/$(uname -r)/kernel/fs/binfmt_misc/
 ```
+
 This returns a "No such file or directory".
 
 The module is then not loaded and not present. Now we check the kernel config to see if it's directly supported by the kernel, or supported as a module:
+
 ```bash
 # grep BINFMT_MISC /boot/config-$(uname -r)
 CONFIG_BINFMT_MISC=m
@@ -43,6 +46,7 @@ It is supported as a module (vs `y` where it would be built into the kernel).
 ### Fix
 
 Reinstall of RPI kernel and reboot:
+
 ```bash
 sudo apt install --reinstall raspberrypi-kernel
 sudo reboot
@@ -57,9 +61,11 @@ Notes from [this video](https://www.youtube.com/watch?v=Kzpm-rGAXos).
 The init system manages all services that run in the background.  
 
 ### Units
+
 Unit: anything systemd can manage, for example: service, timers, mounts, automounts...
 
 Some commands to manage services:
+
 ```bash
 # To inspect running services:
 systemctl status
@@ -77,6 +83,7 @@ systemctl enable/disable httpd
 ### systemd file structure
 
 Service files can be found on:
+
 - /etc/systemd/system => For manually installed units
 - /run/systemd/system => For runtime system units
 - /lib/systemd/system => For installed service files; if a package comes with a service file. Not advised to be modified manually as they could be overwritten by the package manager
@@ -87,6 +94,7 @@ The previous ordering determines priority of unit files to be started by systemd
 
 The file is case sensitive.  
 3 primary sections:
+
 - Unit: General info about the unit
   - Description: What the unit is for
   - Wants: Pre-req unit that is required before this unit can start up
@@ -98,28 +106,33 @@ The file is case sensitive.
   - ExecStop: What happens when process is stopped
   - ExecReload: What happens when process is reloaded (sudo systemctl reload), not a full restart of the service. Reload configuration changes. Not always available in services
 - Install: Not required, what happens when a unit file is enabled/disabled
-  - WantedBy: Dependency relationship. 
+  - WantedBy: Dependency relationship.
 
 ### Customizing unit files
 
 - Overriding an existing system file
+
 ```bash
 systemctl edit httpd.service
 ```
+
 Creates an override file in /etc/systemd/sytem/httpd.service.d/ (remember the priority).
 Make sure to edit before the discarding line.
 To undo the change, simply rm the override file.
 
 To start with the entire service file, instead of an empty override:
+
 ```bash
 systemctl edit --full httpd.service
 ```
+
 This time, the new file is stored directly as /etc/systemd/system/http.service.
 
 ### Reloading services
 
 This will reload systemd to take into account all changes that we made in unit files.
 Any time we make changes to a unit file:
+
 ```bash
 systemctl daemon-reload
 ```
@@ -128,27 +141,36 @@ systemctl daemon-reload
 
 Using systemd-resolved, you can create a file under `/etc/systemd/resolved/resolved.conf.d/`, call it `custom.conf`.
 In this file, add the following:
+
 ```toml title="/etc/systemd/resolved/resolved.conf.d/custom.conf"
 [Resolve]
 Domains=~<SUBDOMAIN>
 DNS=<YOUR_DNS_SERVER_IP>
 ```
+
 This will route all DNS requests to domain matching the pattern `*.<SUBDOMAIN>` to your server.  
 Restart systemd-resolved service to reload the configuration:
+
 ```bash
 sudo systemctl restart systemd-resolved
 ```
+
 ---
+
 ## Allow Discord to start without checking updates
 
 Useful when the version in the package manager isn't yet up to date with the latest release. Add the following line in `~/.config/discord/settings.json`:
+
 ```json title="~/.config.discord/settings.json"
 SKIP_HOST_UPDATE: true
 ```
+
 ---
+
 ## Too many open files - Failed to initialize inotify
 
 You can do an ad-hoc raise of the `max_user_instances` parameter:
+
 ```bash
 echo 256 | sudo tee /proc/sys/fs/inotify/max_user_instances # (1)! 
 ```
@@ -156,46 +178,58 @@ echo 256 | sudo tee /proc/sys/fs/inotify/max_user_instances # (1)!
 1. You can put a higher value than 256 if needed
 
 You can also persist this configuration by adding a configuration file under `/etc/sysctl.d/`, call it `custom.conf` with the following line:
+
 ```bash title="/etc/sysctl.d/custom.conf"
 fs.inotify.max_user_instances = 256 
 ```
+
 ---
+
 ## Force dark mode on GTK-3 applications in Gnome DE
 
 Add the following line in your `~/.config/gtk-3.0/settings.ini` file (or create it if it doesn't exist):
+
 ```bash title="~/.config/gtk-3/settings.ini"
 [Settings]
 gtk-application-prefer-dark-theme=1
 ```
 
 ---
+
 ## Select power usage profiles using TuneD
 
 You can verify if TuneD is running via the command
+
 ```bash
 systemctl status tuned
 ```
 
 You can check the available profiles (and the current one) in TuneD by running the command
+
 ```bash
 tuned-adm profile
 ```
 
 To set a profile, use the following command (will require admin privilege)
+
 ```bash
 tuned-adm profile <PROFILE_NAME>
 ```
 
 ---
-## Syscalls tracing 
+
+## Syscalls tracing
+
 Note: `strace` prints its output to stderr to avoid mixing it with the output of the *traced command*, we need to forward that output to stdout
 
 - Trace filesystem syscalls, replacing all file descriptors by file paths and grepping:
+
 ```bash
 strace -fyrt touch myfile 2>&1 | grep myfile
 ```
 
 ---
+
 ## Extract text from a variable
 
 ```bash
@@ -205,6 +239,7 @@ $ echo ${TOTO#ref/*/} # This pattern-matches the variable and extracts the remai
 ```
 
 ---
+
 ## Resize (extend) disk
 
 ```bash
@@ -214,10 +249,12 @@ resize2fs /dev/<DISK_NAME_PARTITION_NO>
 ```
 
 ---
+
 ## Memory diagnosys tools
 
 Miscellanous stuff noted from [this video](https://www.youtube.com/watch?v=HdM04UBNcgE).
 `free`:
+
 ```bash
 # This is printed in mebibytes
 ~ free -h
@@ -227,6 +264,7 @@ Swap:          4.0Gi          0B       4.0Gi
 ```
 
 `vmstat`:
+
 ```bash
 # Gives slightly more info compared to free
 # Info about swap space, io and cpu load
@@ -245,6 +283,7 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
 ```
 
 `ps`:
+
 ```bash
 # Shows all the processes, users running them and extended informations
 # Some fields:
@@ -262,6 +301,7 @@ Press 1 to print info about all cores load.
 Interesting fields for memory are VIRT (vm), RES (RSS), SHR (shared memory).  
 
 `swapon`:
+
 ```bash
 # Show all swap disks and their usage
 ~ swapon
@@ -272,4 +312,3 @@ NAME      TYPE SIZE USED PRIO
 Filename                                Type            Size            Used            Priority
 /var/swap                               file            524272          0               -2
 ```
-

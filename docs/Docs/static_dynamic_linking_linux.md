@@ -19,6 +19,7 @@ int main() {
 ```
 
 We compile it both statically and dynamically and check the sizes of the executables, we see that the statically compiled program is much bigger in size:
+
 ```bash
 ➜  gcc main.c -o hello_dynamic
 ➜  gcc -static main.c -o hello_static
@@ -55,7 +56,7 @@ exit_group(0)                           = ?
 +++ exited with 0 +++
 ```
 
-Note how the first syscall is `execve`, which directly executes the program: `execve("./hello_static", ["./hello_static"], 0x7fff4d3eafa8 /* 32 vars */) = 0` 
+Note how the first syscall is `execve`, which directly executes the program: `execve("./hello_static", ["./hello_static"], 0x7fff4d3eafa8 /* 32 vars */) = 0`
 
 A bunch of setup is done by the C library. By the end (before the exit_group call), the program performs a `stat` and a `write` to the file descriptor 1: `write(1</dev/pts/7>, "Hello World", 11Hello World) = 11` which effectively writes to standard output (stdout), ie the terminal.
 
@@ -101,7 +102,8 @@ exit_group(0)                           = ?
 ```
 
 The output is bigger here. We start from the same `execve` call. But this time there is much more setup done by the C library.
-In particular, we notice some calls at the beginning: 
+In particular, we notice some calls at the beginning:
+
 ```bash
 # [1]
 access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
@@ -126,7 +128,7 @@ mmap(0x7a6f23e05000, 52624, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANON
 close(3</usr/lib/x86_64-linux-gnu/libc.so.6>) = 0
 ```
 
-Let's explain what happens here: 
+Let's explain what happens here:
 
 - Block [1]:
 This block checks for any libraries that should be "pre-loaded", even before the glibc. The return code of the `access` is -1, signaling that there are not shared libraries to be pre-loaded.  
@@ -135,6 +137,7 @@ We talk about this pre-loading a bit more in-depth later on.
 - Block [2]:
 The gist here is the presence of `ld.so.cache` file. This file is a cache file that contains entries in the form of: `library --> path/of/the/lib/in/filesystem`.  
 This file is constructed at boot and can be inspected via command `ldconfig -p` (requires root permissions):
+
 ```bash
 # ldconfig -p | head
 627 libs found in cache `/etc/ld.so.cache'
@@ -148,13 +151,15 @@ This file is constructed at boot and can be inspected via command `ldconfig -p` 
         libyajl.so.2 (libc6,x86-64) => /lib/x86_64-linux-gnu/libyajl.so.2
         libxxhash.so.0 (libc6,x86-64) => /lib/x86_64-linux-gnu/libxxhash.so.0
 ```
+
 We see in the block that the ld.cs.cache file is [`mmaped`](https://en.wikipedia.org/wiki/Memory-mapped_file) which is mostly for convenience and effeciency to not have to go through the filesystem and instead directly access the cache from memory.
 
 - Block [3]:
-You may have spotted here the presence of `libc.so.6`. This is actually the C library on my system. 
+You may have spotted here the presence of `libc.so.6`. This is actually the C library on my system.
 After it has been found in cache at the previous step, the C library file is opened, it is given file descriptor 3 which is being used for the rest of the loading sequence before closing it.
 
 After reading headers and metadata of the library file, it is then mmaped in memory on different segments:
+
 ```bash
 mmap(NULL, 2170256, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib/x86_64-linux-gnu/libc.so.6>, 0) = 0x7a6f23c00000
 mmap(0x7a6f23c28000, 1605632, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib/x86_64-linux-gnu/libc.so.6>, 0x28000) = 0x7a6f23c28000
@@ -162,6 +167,7 @@ mmap(0x7a6f23db0000, 323584, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</
 mmap(0x7a6f23dff000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib/x86_64-linux-gnu/libc.so.6>, 0x1fe000) = 0x7a6f23dff000
 mmap(0x7a6f23e05000, 52624, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7a6f23e05000
 ```
+
 The 1st mmap: loads the entire library in memory in read-only so the loader can read headers, symbols and ata.  
 The 2nd mmap: loads the .text segment (executable code) starting from the virtual address (first argument) at a given offset.  
 The 3rd mmap: loads constants, string literals and read-only globals
@@ -177,6 +183,7 @@ Turns out, we can provide additional libraries to our program via the LD_PRELOAD
 These libraries are added on runtime by the linker and their definitions are taken into account before any other library down the chain. Let's illustrate this with an example:
 
 Let's keep our same C program as before:
+
 ```c
 #include <stdio.h>
 
@@ -188,6 +195,7 @@ int main() {
 ```
 
 On this program, we will call a simple function that does addition:
+
 ```c
 #include <stdio.h>
 
@@ -200,6 +208,7 @@ int main() {
 ```
 
 This however returns a compile error, as the program doesn't know where this `add` comes from:
+
 ```bash
 ➜ gcc -o main main.c
 main.c: In function ‘main’:
@@ -212,6 +221,7 @@ collect2: error: ld returned 1 exit status
 ```
 
 We will define it (without implementing it) and mark it as external to hint to the compiler that this function exists somewhere and that it will be resolved at link time:
+
 ```c
 #include <stdio.h>
 
@@ -238,6 +248,7 @@ int add(int a, int b) { return 0; }
 ```
 
 Now we run our main, as the add call comes from a dummy library, it should return 0 (while the actual result should be 5):
+
 ```bash
 ➜ ./main
 Result: 0
@@ -245,6 +256,7 @@ Result: 0
 
 Let's now use LD_PRELOAD: We will pre-load a library that will supersede any other function definition in other libraries invoked by the program.
 We will define our preloaded library as such:
+
 ```c
 #include <stdio.h>
 
@@ -260,6 +272,7 @@ void init() {
     printf("[LD_PRELOAD] Library loaded!\n");
 }
 ```
+
 What we should observe, is this add call by our library being called once it is preloaded (the print statement should be ran):
 We compile, pre-load and run again the main:
 

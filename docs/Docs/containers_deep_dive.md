@@ -4,21 +4,23 @@ These are notes taken from [this video](https://www.youtube.com/watch?v=x1npPrzy
 The demos are done via Docker, the notes here are using Podman instead.
 
 Containers are a combination of some Linux primitives:
- - Namespaces 
- - Control groups
- - Union filesystem
+
+- Namespaces
+- Control groups
+- Union filesystem
 
 ## Control groups (cgroups)
 
 Organize and track processes in a system. Used to track resource usage of a group of processes.  
 We can limit or prioritize resource utilization with cgroups.  
 Control groups is an framework, implemented by concrete subsystems:
- - Memory
- - CPU time
- - Block I/O
- - Devices
- - Network priority
- - pids
+
+- Memory
+- CPU time
+- Block I/O
+- Devices
+- Network priority
+- pids
 
 These are resource controllers: they can track or limit resources for the processes.
 
@@ -29,11 +31,13 @@ The cgroups subsystems arrage processes in a hierarchy, each subsystem has an in
 When a new process is started, it begins in the new cgroup as its parent.
 
 Cgroup interaction can be done via virtual filesystem mounted on **/sys/fs/cgroup**. **tasks** virtual file holds all pids in the cgroup. Other files have settings and utilization data.
-  - The dir structure is /sys/fs/cgroup/<SUBSYSTEM>
-  - The structure is a hierarchy, we can have the root cgroup (located at the top of the <SUBSYSTEM> directory) and child cgroups (directories under <SUBSYSTEM>)
-  - Each **task** file for a given cgroup (subsystem) contains all pids of processes in it. Moving a process to another cgroup is equivalent to writing its pid in the target cgroup.
+
+- The dir structure is /sys/fs/cgroup/<SUBSYSTEM>
+- The structure is a hierarchy, we can have the root cgroup (located at the top of the <SUBSYSTEM> directory) and child cgroups (directories under <SUBSYSTEM>)
+- Each **task** file for a given cgroup (subsystem) contains all pids of processes in it. Moving a process to another cgroup is equivalent to writing its pid in the target cgroup.
 
 ### Demo
+
 ```bash
 ls /sys/fs/cgroup/devices
 
@@ -72,6 +76,7 @@ $ cat /proc/5625/cgroup
 ```
 
 We can create a new cgroup subsystem:
+
 ```bash
 $ sudo mkdir /sys/fs/cgroup/pids/lfnw
 $ ls /sys/fs/cgroup/pids/lfnw # Files created automatically
@@ -112,6 +117,7 @@ bash: fork: retry: Resource temporarily unavailable
 ```
 
 Checking cgroups in a container:
+
 ```bash
 $ sudo podman run --rm -it --cpu-shares 256 ubuntu # Going with sudo as resource limits isn't supported with non-privileged users in podman
 root@24fce7291bc6:/# cat /sys/fs/cgroup/cpu/cpu.shares
@@ -165,6 +171,7 @@ Changes to a resources within a namespace are invisible outside the namespace.
 Resources can be mapped with permission changes.  
 
 Resources are (include?):
+
 - Network
 - Filesystem (mounts)
 - Processes (pid)
@@ -189,10 +196,11 @@ Kubernetes pods: containers share the same network namespace
 
 Used for giving containers their own filesystem.  
 Container image is mounted as the root filesystem.  
-"Volumes" are mounts in the container filesystem to share data. 
+"Volumes" are mounts in the container filesystem to share data.
 
 - The procfs virtual filesystem gives information about the namespace of a process
   The files are symlinks to the namespace. The link containers the namespace type and the inode number to identify the namespace:
+
 ```bash
 $ readlink /proc/$$/ns/*
 cgroup:[4026531835]
@@ -206,6 +214,7 @@ time:[4026531834]
 user:[4026531837]
 uts:[4026532380]
 ```
+
 - Creating namespaces, two available syscalls: clone(2) and unshare(2).
   clone: is for new processes to create new namespaces, behavior controlled with CLONE_NEW* flags
   unshare: is for existing processes to create new namespaces.
@@ -214,15 +223,16 @@ uts:[4026532380]
   Either there is a running process, or a bindmount
 
 - Entering a namespace through setns(2) syscall:
-    - Open a file from /proc/$$/ns (or a bindmount) and get the FD.
-    - The FD is given to setns as an identifier of the namespace.
-    - Once the process moves to a ns, it holds the namespace open even if the bindmount goes away
-    - nsenter(1) is a command that does this
-    - ip-netns(8) for network Namespaces
+  - Open a file from /proc/$$/ns (or a bindmount) and get the FD.
+  - The FD is given to setns as an identifier of the namespace.
+  - Once the process moves to a ns, it holds the namespace open even if the bindmount goes away
+  - nsenter(1) is a command that does this
+  - ip-netns(8) for network Namespaces
 
 ### Demo
 
 - Network namesapce
+
 ```bash
 $ ip link
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
@@ -268,7 +278,9 @@ $ sudo ip netns exec lfnw ip link
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 
 ```
+
 - Network ns investigation when podman:
+
 ```bash
 # Run a podman container
 $ podman run --rm -it ubuntu
@@ -330,9 +342,9 @@ References: man 7 {namespaces, pid_namespaces, user_namespaces}
 - Images are COW layers
   - Each layer represents a "state" of the filesystem
   - The most upper layer is RW, the rest are RO
-  - When a file is modified, it is moved to the upper layer 
+  - When a file is modified, it is moved to the upper layer
     - The modified file "hides" the original file
-  - Deleted files are hidden on the upper layer, but still exist underneath 
+  - Deleted files are hidden on the upper layer, but still exist underneath
 
 - Layers are implemented as union of two (or more) filesystems
   - Union filesystem provides a mechanism for having a merged view of files and dirs
@@ -359,7 +371,6 @@ Podman writes overlay filesystmes: `~/.local/share/containers/storage/overlay`
 The upperdir is the final filesystem as seen by the container. Writing to the upperdir is equal to writing to the filesystem.  
 Writing to a lowerdir can make the files appear on the upperdir (and on the container filesystem, but it can break image immutability)
 
-
 ### Demo
 
 ```bash
@@ -370,6 +381,7 @@ Writing to a lowerdir can make the files appear on the upperdir (and on the cont
 ```
 
 Creating an image with multiple layers:
+
 ```bash
 # Dockerfile content:
 FROM docker.io/amazonlinux:latest 
@@ -436,6 +448,7 @@ $ cat ~/.local/share/containers/storage/overlay-containers/d68bb5eb632fbce02efb0
 ```
 
 The result:
+
 ```json
 {
   "ociVersion": "1.1.0",
@@ -1322,4 +1335,3 @@ The result:
   }
 }
 ```
-

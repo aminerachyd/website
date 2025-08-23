@@ -25,7 +25,7 @@ A default "master" real is available, but it's not considered a good practice to
     - A public client: cannot securely store a client secret (web UI)
     - A confidential client: appropriate for server to server conn
 
-    1. Valid redirect URIs: URIs related to an app, for now putting test app available online at www.keycloak.org/app/*
+    1. Valid redirect URIs: URIs related to an app, for now putting test app available online at <www.keycloak.org/app/>*
     2. Web origins: Base address (of app ?)
 
  6. Testing with test app: put local url of keycloak, realm name and client type
@@ -38,6 +38,7 @@ A default "master" real is available, but it's not considered a good practice to
 ### Request an access token
 
 We then send a URL encoded form request like this:
+
 ```bash
 curl -k -X POST http://<KEYCLOAK_SERVER>/realms/testrealm/protocol/openid-connect/token \
     -H "Content-Type: application/x-www-form-urlencoded" \
@@ -49,6 +50,7 @@ Note that the grant_type=password is not recommended.
 And we get an access token in response. The access token is JWT which contains info about the user, the keycloak client used, the user ID, the roles...
 We also get a refresh token, which can be used to get a new access token.
 To use the refresh token:
+
 ```bash
 curl -k -X POST http://<KEYCLOAK_SERVER>/realms/testrealm/protocol/openid-connect/token \
      -H "Content-Type: application/x-www-form-urlencoded" \
@@ -56,6 +58,7 @@ curl -k -X POST http://<KEYCLOAK_SERVER>/realms/testrealm/protocol/openid-connec
 ```
 
 For the confidential client:
+
 ```bash
 curl -k -X POST http://<KEYCLOAK_SERVER>/realms/testrealm/protocol/openid-connect/token \
      -H "Content-Type: application/x-www-form-urlencoded" \
@@ -71,11 +74,11 @@ This returns an access token and an ID token to authenticate against servers
 - [Proxmox](https://gist.github.com/jakoberpf/d6f519459f7dad3b30f509facdc22445)
   Notes: Needs a confidential client. The client secret should be given to Proxmox when creating a realm. Users should be autocreated, role assignment however needs to be done manually on Proxmox
 - [pgadmin](https://www.olavgg.com/show/how-to-configure-pgadmin-4-with-oauth2-and-keycloak)
-  Notes: The config file can be named `config_system.py` and put in `/etc/pgadmin`. More setup parameters available [here](https://www.pgadmin.org/docs/pgadmin4/development/oauth2.html) 
+  Notes: The config file can be named `config_system.py` and put in `/etc/pgadmin`. More setup parameters available [here](https://www.pgadmin.org/docs/pgadmin4/development/oauth2.html)
 - [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/keycloak/)
   Notes:
-   - The `root_url` option has to be set so the URL callback is correct if Grafana is behind a proxy
-   - The docs suggest using a jmespath expression to determine the role of the user based on their role in Keycloak. The suggested expression is `contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'`. However the `role` attribute may not be effective for Keycloak. In the case of Keycloak, the role to be checked is `resource_access.<CLIENT_ID>.roles`. This is a field which is mapped to the client (can be found at Client scopes > roles > Mappers > client roles > Token Claim Name). In addition to that, this mapping should be added either to ID token or userinfo for it to be effective.  
+  - The `root_url` option has to be set so the URL callback is correct if Grafana is behind a proxy
+  - The docs suggest using a jmespath expression to determine the role of the user based on their role in Keycloak. The suggested expression is `contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'`. However the `role` attribute may not be effective for Keycloak. In the case of Keycloak, the role to be checked is `resource_access.<CLIENT_ID>.roles`. This is a field which is mapped to the client (can be found at Client scopes > roles > Mappers > client roles > Token Claim Name). In addition to that, this mapping should be added either to ID token or userinfo for it to be effective.  
 - Immich: oauth configuration in Keycloak
   - Enable confidential client (client authentication checked).
   - Anthentication flow > Standard flow (checked).

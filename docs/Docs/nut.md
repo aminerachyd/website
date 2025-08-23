@@ -12,6 +12,7 @@ The initial setup on Fedora relied mainly on [this forum](https://discord.com/ch
 
 - At the end, the guide proceeds to setup httpd to expose the monitor script. However the suggested setup (using `nut-cgi-bin` endpoint) didn't work. I instead proceeded the modify the pre-configured `cgi-bin` endpoint to point to the dir where the NUT .cgi scripts lived (`/var/www/nut-cgi-bin/`).
   This was done in the default httpd conf:
+
   ```conf
   ScriptAlias /cgi-bin/ "/var/www/nut-cgi-bin/"
 
@@ -29,6 +30,7 @@ The initial setup on Fedora relied mainly on [this forum](https://discord.com/ch
   ```
 
 On RHEL9, the setup was a bit more tedious than anticipated:
+
 - `upsd` was complaining about missing libusb, turns out the `libusb` library was containing extra information about version of the lib. Resolution was to create a symlink pointing to the available lib file.
 - Some permission issues, resolved by adding `user = root` directive on top of the `ups.conf` file.
 - SELinux refraining the `nut` user from accessing certain files. This can be either resolved by disabling SELinux or adding a policy for the concerned files (check kernel messages for more info).

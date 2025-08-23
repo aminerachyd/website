@@ -6,12 +6,14 @@ The server is running RHEL9.
 ## Server configuration
 
 - Create pvt/pub keys in server:  
+
   ```bash
   # tee writes the stdin in a file and also outputs it
   wg genkey | tee privatekey | wg pubkey > publickey
   ```
 
 - Create interface configuration:  
+
   ```bash file=/etc/wireguard/wg0.conf
   [Interface]
   PrivateKey=<REDACTED>
@@ -29,8 +31,8 @@ The server is running RHEL9.
   PostUp and PostDown explanations: These are commands executed when the Wireguard interface is brought up. In this case they are adding/deleting routing rules via iptables (flags -A and -D)  
 
   PostUp rule explanation:  
-    - `iptables -A FORWARD -i wg0 -j ACCEPT`: This adds a new rule to the `FORWARD` chain of the `iptables` firewall. Any packet that enters the system via the `wg0` interface should be accepted and forwarded.  
-    - `iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE`:  This adds a new rule to the `POSTROUTING` chain of the `iptables` NAT table. It specifies that any packet leaving the system via the `eth0` interface should be NATed. This is used to mask the IP address of the devices behind the Wireguard interface, allowing them to access the internet.  
+  - `iptables -A FORWARD -i wg0 -j ACCEPT`: This adds a new rule to the `FORWARD` chain of the `iptables` firewall. Any packet that enters the system via the `wg0` interface should be accepted and forwarded.  
+  - `iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE`:  This adds a new rule to the `POSTROUTING` chain of the `iptables` NAT table. It specifies that any packet leaving the system via the `eth0` interface should be NATed. This is used to mask the IP address of the devices behind the Wireguard interface, allowing them to access the internet.  
 
 - Start the network interface: `wg-quick up wg0`  
   You can verify that everything is good via `ip link` or `sudo wg`  
@@ -40,6 +42,7 @@ The server is running RHEL9.
 - Create pvt/pub keys in client, same as before on the server.  
 
 - Create wireguard interface configuration on client.  
+
   ```bash file=/etc/wireguard/wg0.conf
   [Interface]
   Address = 10.0.0.2/8
