@@ -1,12 +1,12 @@
-# Static and dynamic linking
+# Static linking, dynamic linking and LD_PRELOAD
 
-Some context on how Linux works: functions that are external from our programs usually come from libraries.
+Some context on how Linux works: functions that are external from our programs come from libraries.
 The most known and common library which is present on most Linux systems is the standard C library: the GNU C library, often referred to as `libc` or `glibc`. (check `man glibc`)
 
 When a function is invoked from the libc into a main program, it is often loaded into memory by a special program called **the linker**. (`man ld`)
 The linker is only invoked when a program has been compiled with `dynamic linking`, ie my program refers to another program in the library X), as opposed to `static linking`: my program is self sufficient and has pulled all of it's dependencies of libraries and they are baked into the executable.
 
-To demonstrate the difference between static and dynamic linking, let's have a simple C file:
+To demonstrate the difference between static and dynamic linking, let's start with a simple C file:
 
 ```c
 #include <stdio.h>
@@ -170,8 +170,8 @@ mmap(0x7a6f23e05000, 52624, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANON
 
 The 1st mmap: loads the entire library in memory in read-only so the loader can read headers, symbols and ata.  
 The 2nd mmap: loads the .text segment (executable code) starting from the virtual address (first argument) at a given offset.  
-The 3rd mmap: loads constants, string literals and read-only globals
-The 4th mmap: loads global variables and writable memory inside libc: env variables, memory for mallocs (arenas)...
+The 3rd mmap: loads constants, string literals and read-only globals.
+The 4th mmap: loads global variables and writable memory inside libc: env variables, memory for mallocs (arenas),etc.
 The 5th mmap: anonymous mapping which is writable, mainly for runtime structures needed by glibc.
 
 The linker part is done now, the runtime setup proceeds as is done for the statically linked program, and executes the print instruction, with some slight modification in the dynamically linked program due to how the libraries are being referenced (embeded in the program binary in static, referenced in dynamic).
@@ -293,4 +293,143 @@ If LD_PRELOAD can specify libraries that we wish to load first, how is this usef
 Turns out, this is plenty useful to override behavior of some calls in libraries, especially system calls.
 Valgrind is known for making heavy use of a similar mechanism to LD_PRELOAD to instrument certain calls (such as mallocs) to keep track of memory allocations.
 
-One could even think of hijacking some special system calls and modify their behavior, for instance the `getaddrinfo` call which is used to resolve hostnames to addresses could be hijacked to explictely resolve certain hosts to wanted ip addresses.
+As we can use LD_PRELOAD to supersede calls from libraries, and the libc is itself a library in Linux, we can think of overriding calls from the libc.
+
+For instance, we can hijack hostname resolution. Let's try curl'ing google.com, you should see this normal output:
+
+```bash
+➜ curl -I google.com 
+HTTP/1.1 301 Moved Permanently
+[...]
+```
+
+In curl, a library call which is used is the `getaddrinfo`. This library call isn't easily traceable as it's not a syscall (so we can't see it with `strace`).
+What we can do instead is creating a custom library that should run as a hook to this call, and we will pre-load it with LD_PRELOAD.
+
+This will intercept all calls to `getaddrinfo` from other programs, typically curl, print a small message to signal that the call has been intercepted:
+
+```c
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <dlfcn.h>
+#include <netdb.h>
+
+// Function pointer to the original getaddrinfo
+static int (*orig_getaddrinfo)(const char *node, const char *service,
+                               const struct addrinfo *hints,
+                               struct addrinfo **res) = NULL;
+
+int getaddrinfo(const char *node, const char *service,
+                const struct addrinfo *hints,
+                struct addrinfo **res) {
+    // Initialize original function pointer
+    if (!orig_getaddrinfo) {
+        orig_getaddrinfo = dlsym(RTLD_NEXT, "getaddrinfo");
+        if (!orig_getaddrinfo) {
+            fprintf(stderr, "Error loading original getaddrinfo\n");
+            exit(1);
+        }
+    }
+
+    // Print our hook and then run the original function
+    fprintf(stderr, "[HOOK] getaddrinfo(%s, %s)\n", node, service ? service : "NULL");
+    return orig_getaddrinfo(node, service, hints, res);
+}
+```
+
+And by running it:
+
+```bash
+➜ gcc -shared -fPIC -o libcustomdns.so customdns.c -ldl
+➜ LD_PRELOAD=./libcustomdns.so ltrace -e getaddrinfo curl -I google.com
+[HOOK] getaddrinfo(google.com, 80)
+HTTP/1.1 301 Moved Permanently
+...
+```
+
+Our hook has printed !
+
+Now if we managed to "override" the behavior of the library call, we can also slightly modify how it works. For instance, we can have all calls to google.com via this library go to 1.2.3.4 instead. Let's slightly modify our program so it does the following:
+
+- Intercepting the calls to `getaddrinfo` from other programs (typically `curl`).  
+- Checking if the address they want to resolve is google.com
+  - If yes: replace it with a hardcoded 1.2.3.4 address.
+  - If no: call the original `getaddrinfo`.
+
+Our modified program should look like this:
+
+```c
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dlfcn.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+// Function pointer to the original getaddrinfo
+static int (*orig_getaddrinfo)(const char *node, const char *service,
+                               const struct addrinfo *hints,
+                               struct addrinfo **res) = NULL;
+
+int getaddrinfo(const char *node, const char *service,
+                const struct addrinfo *hints,
+                struct addrinfo **res) {
+
+    // Initialize original function pointer
+    if (!orig_getaddrinfo) {
+        orig_getaddrinfo = dlsym(RTLD_NEXT, "getaddrinfo");
+        if (!orig_getaddrinfo) {
+            fprintf(stderr, "Error loading original getaddrinfo\n");
+            exit(1);
+        }
+    }
+
+    // Custom DNS behavior
+    if (strcmp(node, "google.com") == 0) {
+        struct addrinfo *ai = malloc(sizeof(struct addrinfo));
+        memset(ai, 0, sizeof(struct addrinfo));
+        ai->ai_family = AF_INET;
+        ai->ai_socktype = SOCK_STREAM;
+        ai->ai_protocol = IPPROTO_TCP;
+
+        struct sockaddr_in *sa = malloc(sizeof(struct sockaddr_in));
+        memset(sa, 0, sizeof(struct sockaddr_in));
+        sa->sin_family = AF_INET;
+        inet_pton(AF_INET, "1.2.3.4", &sa->sin_addr); // replace with the custom IP we want
+
+        ai->ai_addr = (struct sockaddr *)sa;
+        ai->ai_addrlen = sizeof(struct sockaddr_in);
+        ai->ai_next = NULL;
+
+        *res = ai;
+        return 0;
+    }
+
+    // Fallback to the original system resolver
+    return orig_getaddrinfo(node, service, hints, res);
+}
+```
+
+Now we compile and run:
+
+```bash
+➜  misc LD_PRELOAD=./libcustomdns.so ltrace -e getaddrinfo curl -vvvI google.com
+* Host google.com:80 was resolved.
+* IPv6: (none)
+* IPv4: 1.2.3.4
+*   Trying 1.2.3.4:0...
+```
+
+By making curl printing in verbose mode `-vvv`, we can see that it's attempting to target google.com 1.2.3.4. We have successfully hijacked the library call through our custom library !
+
+This could be taken a step further: system calls are also just library calls from the C library, at least the "interface" that is given to us: [man 2 syscalls](https://www.man7.org/linux/man-pages/man2/chroot.2.html) shows a table with the full list of syscalls.
+
+!!! note "Raw syscalls invocations"
+    Syscalls can be called otherwise using the `syscall` function.
+    This function takes as arguments the syscall number (constants like SYS_write) and the arguments for that syscall.
+    There are two common ways syscalls reach the kernel:
+    - Via the `syscall()` function in libc. This is a dynamic symbol which can be overriden by LD_PRELOAD.
+    - Via the `syscall` CPU instruction. This is used internally by glibc or can be invoked manually when writing inline assembly. Calling the assembly instruction bypasses all libraries, it is thus not possible to intercept it using LD_PRELOAD
