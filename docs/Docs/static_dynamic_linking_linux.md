@@ -425,11 +425,12 @@ Now we compile and run:
 
 By making curl printing in verbose mode `-vvv`, we can see that it's attempting to target google.com 1.2.3.4. We have successfully hijacked the library call through our custom library !
 
-This could be taken a step further: system calls are also just library calls from the C library, at least the "interface" that is given to us: [man 2 syscalls](https://www.man7.org/linux/man-pages/man2/chroot.2.html) shows a table with the full list of syscalls.
+This could be taken a step further: system calls are also just library calls from the C library, at least the "interface" that is given to us: [man 2 syscalls](https://www.man7.org/linux/man-pages/man2/syscalls.2.html) shows a table with the full list of syscalls.
 
-!!! note "Raw syscalls invocations"
-    Syscalls can be called otherwise using the `syscall` function.
-    This function takes as arguments the syscall number (constants like SYS_write) and the arguments for that syscall.
-    There are two common ways syscalls reach the kernel:
-    - Via the `syscall()` function in libc. This is a dynamic symbol which can be overriden by LD_PRELOAD.
-    - Via the `syscall` CPU instruction. This is used internally by glibc or can be invoked manually when writing inline assembly. Calling the assembly instruction bypasses all libraries, it is thus not possible to intercept it using LD_PRELOAD
+Note that syscalls can be called otherwise using the `syscall` function.
+
+This function takes as arguments the syscall number (constants like SYS_write) and the arguments for that syscall.
+
+There are two common ways syscalls reach the kernel:
+ - Via the `syscall()` function in libc. This is a dynamic symbol which can be overriden by LD_PRELOAD.  
+ - Via the `syscall` CPU instruction. This is used internally by glibc or can be invoked manually when writing inline assembly. Calling the assembly instruction bypasses all libraries, it is thus not possible to intercept it using LD_PRELOAD  
