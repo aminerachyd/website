@@ -24,3 +24,52 @@ Or to modify only the working directory (the previous command also copies to the
 ```bash
 git restore --source <SOURCE_BRANCH> myfile
 ```
+
+---
+
+## Setup a separate SSH key to use for different identities on Github
+
+1. Create an SSH key:
+```bash
+ssh-keygen -t rsa -b 4096 -C "aminerachyd99@example.com"
+```
+
+2. Add the SSH key to Github
+3. Edit your SSH config (`~/.ssh/config` or a file under `~/.ssh/config.d/`)
+```
+# Default GitHub 
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+
+# Second GitHub account (for aminerachyd) with the key we generated above
+Host github-second
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_aminerachyd
+  IdentitiesOnly yes
+```
+
+4. Set the remote URL using the SSH host we added
+```bash
+git remote set-url origin git@github-second:aminerachyd/argo-cd.git
+```
+
+5. Test:
+```bash
+$ ssh -T git@github-second
+Hi aminerachyd! You've successfully authenticated, but GitHub does not provide shell access
+```
+
+---
+
+## Restore only some lines in changed file
+
+Using:
+```bash
+git restore -p path/to/file
+```
+
+This opens an interactie prompt to select the lines to keep or to discard in the changed file.
