@@ -1,14 +1,18 @@
 # Keycloak
 
-A default "master" real is available, but it's not considered a good practice to use it
+## Concepts & Definitions
 
-### Some definitions
+### Overview
 
 - **Keycloak realm**: a space where we manage objects: users, applications, roles and groups.
     A realm can shared/used for different applications if they share the same users and roles.
     A single realm interesting because we would have a single centralized identity managmeent server. It could also provide single sign on accross applications.
 
-### Creating a realm and users in it
+---
+
+## Getting Started
+
+### Creating a Realm and Users
 
  1. Create a custom realm for applications
     Give it name, mark it as enabled
@@ -67,31 +71,106 @@ curl -k -X POST http://<KEYCLOAK_SERVER>/realms/testrealm/protocol/openid-connec
 
 This returns an access token and an ID token to authenticate against servers
 
-## Keycloak setup for applications
+---
 
-- [Argo CD](https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/keycloak/)
-  Notes: Watch out for config maps `argocd-cm` and `argocd-rbac-cm`. If you encounter issues about an incorrect redirect URL, check the `url` field in the former. If your user doesn't have sufficient rights after logging, check the `policy.csv` field in the latter.
-- [Proxmox](https://gist.github.com/jakoberpf/d6f519459f7dad3b30f509facdc22445)
-  Notes: Needs a confidential client. The client secret should be given to Proxmox when creating a realm. Users should be autocreated, role assignment however needs to be done manually on Proxmox
-- [pgadmin](https://www.olavgg.com/show/how-to-configure-pgadmin-4-with-oauth2-and-keycloak)
-  Notes: The config file can be named `config_system.py` and put in `/etc/pgadmin`. More setup parameters available [here](https://www.pgadmin.org/docs/pgadmin4/development/oauth2.html)
-- [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/keycloak/)
-  Notes:
-  - The `root_url` option has to be set so the URL callback is correct if Grafana is behind a proxy
-  - The docs suggest using a jmespath expression to determine the role of the user based on their role in Keycloak. The suggested expression is `contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'`. However the `role` attribute may not be effective for Keycloak. In the case of Keycloak, the role to be checked is `resource_access.<CLIENT_ID>.roles`. This is a field which is mapped to the client (can be found at Client scopes > roles > Mappers > client roles > Token Claim Name). In addition to that, this mapping should be added either to ID token or userinfo for it to be effective.  
-- Immich: oauth configuration in Keycloak
-  - Enable confidential client (client authentication checked).
-  - Anthentication flow > Standard flow (checked).
-  - Keep everything else unchecked.
+## Application Integration
 
-- Portainer: oauth configuration
-  - `authorization url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/auth
-  - `access token url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/token
-  - `resource url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/userinfo
-  - `redirect url`: PORTAINER_URL
-  - `logout url`: KEYLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/logout
-  - `user identifier`: preferred_username
-  - `scopes`: openid email profile offline_access roles
-  
-  Make sure to also enable the **automatic user provisioning**
-  
+### Argo CD
+
+**Documentation:** [Argo CD Keycloak Setup](https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/keycloak/)
+
+**Client Type:** OpenID Connect
+
+**Configuration Notes:**
+- Watch out for config maps `argocd-cm` and `argocd-rbac-cm`
+- If you encounter issues about an incorrect redirect URL, check the `url` field in `argocd-cm`
+- If your user doesn't have sufficient rights after logging in, check the `policy.csv` field in `argocd-rbac-cm`
+
+---
+
+### Proxmox
+
+**Documentation:** [Setup Guide](https://gist.github.com/jakoberpf/d6f519459f7dad3b30f509facdc22445)
+
+**Client Type:** Confidential Client
+
+**Configuration Steps:**
+1. Create a confidential client in Keycloak
+2. Enable client authentication
+3. Give the client secret to Proxmox when creating a realm
+4. Users will be auto-created on first login
+5. Role assignment must be done manually on Proxmox side
+
+---
+
+### pgAdmin
+
+**Documentation:** [pgAdmin OAuth2 Setup](https://www.olavgg.com/show/how-to-configure-pgadmin-4-with-oauth2-and-keycloak)
+
+**Client Type:** Public Client
+
+**Configuration:**
+- Config file location: `/etc/pgadmin/config_system.py`
+- More setup parameters: [pgAdmin OAuth2 Docs](https://www.pgadmin.org/docs/pgadmin4/development/oauth2.html)
+
+---
+
+### Grafana
+
+**Documentation:** [Grafana Keycloak Integration](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/keycloak/)
+
+**Client Type:** OpenID Connect
+
+**Keycloak Configuration:**
+1. Create an OpenID Connect client
+2. Configure valid redirect URIs
+
+**Grafana Configuration:**
+- Set the `root_url` option so the URL callback is correct if Grafana is behind a proxy
+- Configure role mapping using jmespath expression
+
+**Role Mapping:**
+- Default suggestion: `contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'`
+- **Note:** For Keycloak, use `resource_access.<CLIENT_ID>.roles` instead
+- This field is mapped to the client (found at: Client scopes > roles > Mappers > client roles > Token Claim Name)
+- Mapping should be added to either ID token or userinfo for it to be effective
+
+---
+
+### Immich
+
+**Client Type:** Confidential Client
+
+**Keycloak Configuration:**
+1. Create a confidential client
+2. Enable client authentication (checked)
+3. Authentication flow: Enable Standard flow (checked)
+4. Keep all other options unchecked
+
+**Immich Configuration:**
+- Configure OAuth using the client credentials from Keycloak
+
+---
+
+### Portainer
+
+**Client Type:** Confidential Client (with OAuth 2.0)
+
+**Portainer OAuth Configuration:**
+```
+authorization url:  KEYCLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/auth
+access token url:   KEYCLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/token
+resource url:       KEYCLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/userinfo
+redirect url:       PORTAINER_URL
+logout url:         KEYCLOAK_URL/realms/YOUR_REALM/protocol/openid-connect/logout
+user identifier:    preferred_username
+scopes:             openid email profile offline_access roles
+```
+
+**Keycloak Client Configuration:**
+- Client authentication: **Yes**
+- Authorization: **Yes**
+- Standard flow: **Yes**
+- Direct access grants: **Yes**
+- OAuth 2.0 Device Authorization Grant: **Yes**
+- Automatic user provisioning: **Enable**

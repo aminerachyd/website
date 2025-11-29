@@ -1,8 +1,10 @@
-# Troubleshooting linux networking
+# Linux Network Troubleshooting
 
 Notes from [this livestream](https://www.youtube.com/live/dHa2Bja85U0)
 
-DHCP lease: a temporary allocation of an IP address to a device by a DHCP server. The DHCP lease contains several infos: the ip address, the lease time (duration, renewal time, rebinding time), default gateway, DNS servers, domain name associated by the network, etc.
+## Concepts
+
+### DHCP Lease
 
 ## Useful tools
 
@@ -12,7 +14,7 @@ Uses ICMP ECHO packets
 Receiver responds with ECHO reply packet
 Prints time, roundtrip time between the moment the ICMP packet is sent and the receive of ECHO packet
 
-### **tracepath**
+### tracepath
 
 Uses UDP datagram packets
 Sets the TTL to be incrementally larger
@@ -24,17 +26,17 @@ no reply: some network devices can be configured to not reply on expired TTL. tr
 
 `traceroute` is the predecessor tool, it sends **ICMP** packets instead, the idea stays the same. Traceroute can be configured to send **TCP** packets, and can check whether we can deliver packets to specific addr/port
 
-### **ip**
+### ip
 
 `ip a`: configured addr
 `ip r`: routing configuration, for a tabular output: `route -n` (-n for only numbers, otherwise it does DNS lookup)
 
-### **nmcli**
+### nmcli
 
-Network manager CLI, specific to RHEL-like systems.  
-Network manager can also be configured through a TUI via `nmtui`.  
+Network manager CLI, specific to RHEL-like systems.
+Network manager can also be configured through a TUI via `nmtui`.
 
-Bond interfaces: Group two network interfaces to work as one. Either both could service the same requests, or one could serve as a failover for the other.  
+Bond interfaces: Group two network interfaces to work as one. Either both could service the same requests, or one could serve as a failover for the other.
 
 Some commands:
 
@@ -53,15 +55,21 @@ nmcli con down/up <INTERFACE>
 nmcli con show <INTERFACE>
 ```
 
-Changes done via nmcli are persisted on the systems  
+Changes done via nmcli are persisted on the systems
 
-## Anatomy of a ping command
+---
 
-`ping www.google.com`
+## Troubleshooting Workflows
+
+### Anatomy of a Ping Command`ping www.google.com`
 
 - DNS lookups: checks if there is a DNS entry in /etc/hosts, if not it sends a a DNS server inquery (info can be found on /etc/resov.conf)
 - IP addr found, ping sends the ICMP pakcets
 - Resubstitutes the hostname in the ouput of the command instead of printing just the numbers
+
+---
+
+### Troubleshooting DNS
 
 ## Troubleshooting DNS
 
@@ -76,6 +84,10 @@ Changes done via nmcli are persisted on the systems
   - Check connection details via nmcli; check at the bottom the DHCP provided data. DHCP provides a lease with the DNS server to use.
   - If we have multiple interfaces, a wrong nameserver could be placed on top of the /etc/resolv.conf, making DNS resolves very slow
 
+---
+
+### Troubleshooting Routes
+
 ## Troubleshooting routes
 
 **Symptoms:**
@@ -89,6 +101,10 @@ Changes done via nmcli are persisted on the systems
 - Check "from" field of the output of ping
 - Check default getways form `route -n`, the default gateway has a destination of `0.0.0.0`. If there are many default gateways, the first on the list is used
 - Delete the incorrect default gateway route with `route del`
+
+---
+
+### Troubleshooting ICMP
 
 ## Troubleshooting ping
 

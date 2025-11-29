@@ -11,19 +11,19 @@ It's not only about being a professional, but also being a true craftsman, someo
 
 These are *some* interesting points I noted while reading the book are the following:
 
-### Be a team player
+### 1. Be a Team Player
 
 I think that everything in this book revolves around this special notion (and being a *professional* of course).
 In a company/project configuration, you will most likely be working with a team. In order to produce value, this team has to work in an effective manner. Part of this is possible if all the members are *team players*. Team playing will be about seeking to do good and deliver correct software, but this might induce some tension or rivalry between team members, or between team members and their management.
 They are not trying to be mean to each other, but they each try to pull the strings to their favour; **managers and product owners** want to have the product delivered fast, respecting deadline. **Professional developers** want to deliver *good software* at the cost of maybe delaying the release or not having every feature delivered in time.
 
-### Learn to say no
+### 2. Learn to Say No
 
 This is a valuable advice that I have learned before reading the book. I believe it's all about knowing your limits.
 With enough time and experience you learn to understand that some tasks might take more than the estimated time or deadline you have.
 You have to make it clear that features can't be delivered in time, stand by and defend your position. Of course, we're aiming at the success of the whole team and product, so stopping at "no" doesn't really count for *team playing*. The goal is to find this middle ground where everyone is satisfied, however this doesn't mean (or justify) cutting corners, as this is counterproductive and will eventually lead to bad code and bad software, and this is something a *professional* should avoid at any cost.
 
-### Don't "try"
+### 3. Don't "Try"
 
 The issue with *trying* is that it always induces this *false sense of security*. It is often misunderstood by management; by telling someone that you will try, you're probably meaning that that will do your best but no results are guaranteed, but management sees it as a "Yes".
 However, *trying* is often described as an easy way to avoid *saying no*, arguing and negotiation.
@@ -32,7 +32,7 @@ People with the power (your manager for instance) will try to squeeze an answer 
 
 No one should give nor accept "try" as an answer. As a professional, either **commit** to doing something or explain and discuss why it can't be done and try to find a way around it, don't cheat your way out of discussion. Communication is key, and it is particularly important in our job, even if *we enjoy spending more time with a computer than with people*.
 
-### Have some time to mentor others, and be grateful to your mentor
+### 4. Mentoring and Learning
 
 Another part of our daily job is to share our knowledge, whether it could be related to the code we write, or the company we're working at.
 Mentoring someone will probably be the best way to share your knowledge, especially to someone who has just started and is ongoing a period where he must learn many things before he handles any productive or serious task (my current situation as I'm writing this page).

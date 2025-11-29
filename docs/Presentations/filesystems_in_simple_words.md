@@ -1,10 +1,18 @@
-# File systems in simple words - Blablaconf 2024, backend track
+# File Systems in Simple Words - Blablaconf 2024, Backend Track
+
+## Table of Contents
+
+1. [Intro](#intro)
+2. [In a Nutshell](#in-a-nutshell)
+3. [Everything is a File](#everything-is-a-file)
+
+---
 
 ## Intro
 
-We stumble against file systems everytime we run a new install of a Linux operating system, a couple examples include <span style="color:red">ext4</span>, <span style="color:red">btrfs</span>, <span style="color:red">xfs</span>
+We stumble against file systems everytime we run a new install of a Linux operating system, a couple examples include **ext4**, **btrfs**, **xfs**.
 
-## In a nutshell
+---
 
 File systems are the brain that understands how to **store and retrieve** files from a **storage medium**
 
@@ -15,6 +23,6 @@ Storage mediums include and are not limited to:
 - USB sticks
 - ...
 
-## Everything is a file
+---
 
-In every Unix-like OS, everything is modeled as a file.
+## Everything is a File

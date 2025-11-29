@@ -1,6 +1,8 @@
 # Linux
 
-## unknown filesystem type 'binfmt_misc'
+## Filesystems & Modules
+
+### Unknown filesystem type 'binfmt_misc'
 
 Encountered this error when I restarted my Raspberry Pi.
 I have a cronjob setup on RPI to periodically install updates, so something probably went wrong on that front.
@@ -52,13 +54,20 @@ sudo apt install --reinstall raspberrypi-kernel
 sudo reboot
 ```
 
+---
+
+## System Administration & Services
+
+### systemd Explained
+```
+
 Alternatively, the kernel module could be downloaded and installed separately without re-installing the whole kernel.
 
 ## systemd explained
 
 Notes from [this video](https://www.youtube.com/watch?v=Kzpm-rGAXos).
 
-The init system manages all services that run in the background.  
+The init system manages all services that run in the background.
 
 ### Units
 
@@ -92,7 +101,7 @@ The previous ordering determines priority of unit files to be started by systemd
 
 ### systemd unit file structure
 
-The file is case sensitive.  
+The file is case sensitive.
 3 primary sections:
 
 - Unit: General info about the unit
@@ -148,7 +157,7 @@ Domains=~<SUBDOMAIN>
 DNS=<YOUR_DNS_SERVER_IP>
 ```
 
-This will route all DNS requests to domain matching the pattern `*.<SUBDOMAIN>` to your server.  
+This will route all DNS requests to domain matching the pattern `*.<SUBDOMAIN>` to your server.
 Restart systemd-resolved service to reload the configuration:
 
 ```bash
@@ -172,7 +181,7 @@ SKIP_HOST_UPDATE: true
 You can do an ad-hoc raise of the `max_user_instances` parameter:
 
 ```bash
-echo 256 | sudo tee /proc/sys/fs/inotify/max_user_instances # (1)! 
+echo 256 | sudo tee /proc/sys/fs/inotify/max_user_instances # (1)!
 ```
 
 1. You can put a higher value than 256 if needed
@@ -180,7 +189,7 @@ echo 256 | sudo tee /proc/sys/fs/inotify/max_user_instances # (1)!
 You can also persist this configuration by adding a configuration file under `/etc/sysctl.d/`, call it `custom.conf` with the following line:
 
 ```bash title="/etc/sysctl.d/custom.conf"
-fs.inotify.max_user_instances = 256 
+fs.inotify.max_user_instances = 256
 ```
 
 ---
@@ -196,7 +205,14 @@ gtk-application-prefer-dark-theme=1
 
 ---
 
-## Select power usage profiles using TuneD
+- TuneD profiles
+- Troubleshooting and verification
+
+---
+
+## System Calls & Tracing
+
+### Syscalls Tracing
 
 You can verify if TuneD is running via the command
 
@@ -230,7 +246,9 @@ strace -fyrt touch myfile 2>&1 | grep myfile
 
 ---
 
-## Extract text from a variable
+## Text Processing & Utilities
+
+### Extract Text from a Variable
 
 ```bash
 $ TOTO=ref/tag/1.2.3
@@ -297,8 +315,8 @@ root           2  0.0  0.0   2616  1444 ?        Sl   18:53   0:00 /init
 ```
 
 `top`:
-Press 1 to print info about all cores load.  
-Interesting fields for memory are VIRT (vm), RES (RSS), SHR (shared memory).  
+Press 1 to print info about all cores load.
+Interesting fields for memory are VIRT (vm), RES (RSS), SHR (shared memory).
 
 `swapon`:
 

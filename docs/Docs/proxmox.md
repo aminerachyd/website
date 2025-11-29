@@ -1,8 +1,8 @@
 # Proxmox
 
-Hardware used for reference: Lenovo thinkcentre tiny m720q with i5-8500T and 32gb of RAM
+## VM Management
 
-## Shrink VM disk size
+### Shrink VM Disk Size
 
 Reference [from here](https://forum.proxmox.com/threads/decrease-a-vm-disk-size.122430/post-540307).
 
@@ -14,7 +14,11 @@ lvm lvreduce -L <WANTED_SIZE> pve/<DISK_NAME>
 qm rescan
 ```
 
-## Disabling checksum offloading
+---
+
+## Network Configuration
+
+### Disabling Checksum Offloading
 
 - **TCP checksum**: A 16-bit field in the TCP header used for error-checking of the latter, the payload and an IP pseudo-header.
 The IP pseudo-header consists of source IP addr, destination IP addr, the protocol number of the TCP protocol (6) and the length of TCP headers and payload (in bytes). [Source](https://en.wikipedia.org/wiki/Transmission_Control_Protocol#Error_detection)
@@ -51,7 +55,9 @@ iface <INTERFACE_NAME> inet static
 
 ---
 
-## RRD cache issue
+## Troubleshooting & Maintenance
+
+### RRD Cache Issue
 
 When running a Proxmox cluster, nodes would sometimes start streaming this error and become unreachable:
 
@@ -68,14 +74,16 @@ However, perfomance graphs are lost with this manipulation.
 
 ```bash
 rm -r /var/lib/rrdcached/db
-systemctl restart rrdcached.service 
+systemctl restart rrdcached.service
 ```
 
 ---
 
-## Intel integrated GPU (iGPU) passthrough to virtual machine
+## GPU Passthrough
 
-The PCI passthrough setup might highly depend on the hardware you have. My hardware is a Lenovo m720q with an Intel i5-8500T CPU.  
+### Intel iGPU Passthrough to Virtual Machine
+
+The PCI passthrough setup might highly depend on the hardware you have. My hardware is a Lenovo m720q with an Intel i5-8500T CPU.
 This has been tested on Proxmox VE 8.3.2.
 
 ### Pre-requisites
@@ -87,7 +95,7 @@ To check whether your host is on UEFI mode, just run:
 ls /sys/firmware/efi/
 ```
 
-If it shows that the directory has content, then your host runs on UEFI.  
+If it shows that the directory has content, then your host runs on UEFI.
 If your virtual machine happens to run on BIOS, simply update it to use UEFI using the Hardware tab on Proxmox GUI.
 
 ### Setup
@@ -106,7 +114,7 @@ To:
 GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_gvt=1 iommu=pt pcie_acs_override=downstream,multifunction video=efifb:off video=vesa:off vfio_iommu_type1.allow_unsafe_interrupts=1 kvm.ignore_msrs=1 modprobe.blacklist=radeon,nouveau,nvidia,nvidiafb,nvidia-gpu"
 ```
 
-The main info is that this enables IOMMU which allows devices to be directly assigned to virtual machines. Devices are grouped in IOMMU groups, and whole groups need to be passed to VMs for the device to be able to function, yet we don't necessarily want to passthrough all devices in a group. `pcie_acs_override` is an option that splits devices onto their own separate IOMMU group. This command also blacklists some drivers from being loaded on boot.  
+The main info is that this enables IOMMU which allows devices to be directly assigned to virtual machines. Devices are grouped in IOMMU groups, and whole groups need to be passed to VMs for the device to be able to function, yet we don't necessarily want to passthrough all devices in a group. `pcie_acs_override` is an option that splits devices onto their own separate IOMMU group. This command also blacklists some drivers from being loaded on boot.
 
 2. Update GRUB, run: `update-grub`
 3. Add these modules to `/etc/modules`:
@@ -119,7 +127,7 @@ vfio_virqfd
 kvmgt
 ```
 
-In short these kernel modules provide support for passing through devices to virtual machins. The last one, `kvmgt` is specific for Intel, it enables GPU virtualization so a GPU can be shared across multiples virtual machines.  
+In short these kernel modules provide support for passing through devices to virtual machins. The last one, `kvmgt` is specific for Intel, it enables GPU virtualization so a GPU can be shared across multiples virtual machines.
 
 4. Add a file: `/etc/modprobe.d/iommu_unsafe_interrupts.conf` with content:
 

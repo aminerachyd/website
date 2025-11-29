@@ -1,8 +1,14 @@
-# From FUSE read to page cache
+# From FUSE Read to Page Cache
+
+## Overview
 
 This reading has been done to understand how a filesystem, in particular FUSE ones, interact with the page cache and find potential ways to trace this behavior. This reading references Kernel [5.14](https://elixir.bootlin.com/linux/v5.14/source).
 
-FUSE defines the filesystem operations [as such](https://elixir.bootlin.com/linux/v5.14/source/fs/fuse/file.c#L3113):
+---
+
+## FUSE Basics
+
+### File Operations
 ```c
 static const struct file_operations fuse_file_operations = {
 	.llseek		= fuse_file_llseek,
@@ -25,11 +31,15 @@ static const struct file_operations fuse_file_operations = {
 	.copy_file_range = fuse_copy_file_range,
 };
 ```
-The `.read_iter` interface is the one used to read files once they are opened.  
+The `.read_iter` interface is the one used to read files once they are opened.
 
 The FUSE driver doesn't implement the `.read` operation, so the `.read_iter` is used by the Kernel ([check vfs_read operation](https://elixir.bootlin.com/linux/v5.14/source/fs/read_write.c#L493-L496)) as it's a slightly more modern alternative than the legacy `.read`.
 
-This interface references the `fuse_file_read_iter` routine defined as follows:  
+---
+
+## FUSE Read Implementation
+
+### fuse_file_read_iter
 ```c
 static ssize_t fuse_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 {
@@ -50,7 +60,11 @@ static ssize_t fuse_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 }
 ```
 
-To read while trying to use the page cache, we have to use a "no DIRECT_IO" flag. The first condition is thus checked and we enter the routine `fuse_cache_read_iter` defined as follows:  
+To read while trying to use the page cache, we have to use a "no DIRECT_IO" flag. The first condition is thus checked and we enter the routine `fuse_cache_read_iter` defined as follows:
+
+---
+
+### fuse_cache_read_iter
 ```c
 static ssize_t fuse_cache_read_iter(struct kiocb *iocb, struct iov_iter *to)
 {
@@ -74,10 +88,13 @@ static ssize_t fuse_cache_read_iter(struct kiocb *iocb, struct iov_iter *to)
 }
 ```
 
-This in turn does some checks and ultimately calls the `generic_file_read_iter` routine which is a high level and generic routine used by all filesystems to read data from the page cache. This puts data into `iter` which is the destination for the read data.  
+This in turn does some checks and ultimately calls the `generic_file_read_iter` routine which is a high level and generic routine used by all filesystems to read data from the page cache. This puts data into `iter` which is the destination for the read data.
 
-This routine is defined [here](https://elixir.bootlin.com/linux/v5.14/source/mm/filemap.c#L2650):  
-```c
+---
+
+## Page Cache Interaction
+
+### generic_file_read_iter
 ssize_t generic_file_read_iter(struct kiocb *iocb, struct iov_iter *iter)
 {
 	size_t count = iov_iter_count(iter);
@@ -133,7 +150,7 @@ ssize_t generic_file_read_iter(struct kiocb *iocb, struct iov_iter *iter)
 }
 ```
 
-By the end this routine calls the `filemap_read` routine which initiates the chain to [read from the pagecache](https://elixir.bootlin.com/linux/v5.14/source/mm/filemap.c#L2519):  
+By the end this routine calls the `filemap_read` routine which initiates the chain to [read from the pagecache](https://elixir.bootlin.com/linux/v5.14/source/mm/filemap.c#L2519):
 ```c
 ssize_t filemap_read(struct kiocb *iocb, struct iov_iter *iter,
 		ssize_t already_read)
@@ -307,8 +324,8 @@ err:
 }
 ```
 
-Digging deeper, we see the two routines are invoked in the `retry` block: `filemap_get_read_batch` & `page_cache_sync_readahead`.  
-The first one reads a batch of pages from the page cache and stores them in the `pvec` pages vector.  
+Digging deeper, we see the two routines are invoked in the `retry` block: `filemap_get_read_batch` & `page_cache_sync_readahead`.
+The first one reads a batch of pages from the page cache and stores them in the `pvec` pages vector.
 If no page has been read (`!pagevec_count(pvec)` being equal to 1), the second routine is invoked to fetch pages and retry the read.
 
 Ultimately, the `filemap_get_pages` routine should always return >=0 unless there is an error, so for tracing purposes we can't really know from it alone if we did a cache hit or miss on a read.

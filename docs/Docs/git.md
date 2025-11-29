@@ -1,6 +1,8 @@
 # Git
 
-## Look for a line in commit history
+## Viewing History & Search
+
+### Look for a line in commit history
 
 This command will list the commits where a specific string was added and removed from a file.
 It will display the commit log along with the diff, showing where the line was added or removed.
@@ -11,7 +13,9 @@ git log -p -S'example line' -- example.txt
 
 ---
 
-## Copy file from a commit/branch to another branch
+## Working with Branches & Files
+
+### Copy file from a commit/branch to another branch
 
 Place yourself on the branch you would like to copy **to**, and run
 
@@ -27,7 +31,9 @@ git restore --source <SOURCE_BRANCH> myfile
 
 ---
 
-## Setup a separate SSH key to use for different identities on Github
+## Authentication & SSH
+
+### Setup a separate SSH key to use for different identities on Github
 
 1. Create an SSH key:
 ```bash
@@ -37,7 +43,7 @@ ssh-keygen -t rsa -b 4096 -C "aminerachyd99@example.com"
 2. Add the SSH key to Github
 3. Edit your SSH config (`~/.ssh/config` or a file under `~/.ssh/config.d/`)
 ```
-# Default GitHub 
+# Default GitHub
 Host github.com
   HostName github.com
   User git
@@ -65,7 +71,9 @@ Hi aminerachyd! You've successfully authenticated, but GitHub does not provide s
 
 ---
 
-## Restore only some lines in changed file
+## Staging & Changes
+
+### Restore only some lines in changed file
 
 Using:
 ```bash

@@ -1,4 +1,6 @@
-# Static linking, dynamic linking and LD_PRELOAD
+# Static Linking, Dynamic Linking and LD_PRELOAD
+
+## Introduction
 
 Some context on how Linux works: functions that are external from our programs come from libraries.
 The most known and common library which is present on most Linux systems is the standard C library: the GNU C library, often referred to as `libc` or `glibc`. (check `man glibc`)
@@ -6,7 +8,11 @@ The most known and common library which is present on most Linux systems is the 
 When a function is invoked from the libc into a main program, it is often loaded into memory by a special program called **the linker**. (`man ld`)
 The linker is only invoked when a program has been compiled with `dynamic linking`, ie my program refers to another program in the library X), as opposed to `static linking`: my program is self sufficient and has pulled all of it's dependencies of libraries and they are baked into the executable.
 
-To demonstrate the difference between static and dynamic linking, let's start with a simple C file:
+---
+
+## Static vs Dynamic Linking Comparison
+
+### Simple Example
 
 ```c
 #include <stdio.h>
@@ -28,11 +34,11 @@ We compile it both statically and dynamically and check the sizes of the executa
 -rwxr-xr-x 1 amine amine 767K Aug 21 21:08 hello_static
 ```
 
-## Tracing the compiled programs
+---
 
-Using `strace`, we can trace the [syscalls](https://en.wikipedia.org/wiki/System_call) invoked upon executing the files, we'll focus on only on a subset of calls.  
+## System Call Analysis
 
-For the statically compiled program, we get the following output when tracing it:
+### Static Linked Program
 
 ```bash
 ➜ strace -y ./hello_static
@@ -59,6 +65,8 @@ exit_group(0)                           = ?
 Note how the first syscall is `execve`, which directly executes the program: `execve("./hello_static", ["./hello_static"], 0x7fff4d3eafa8 /* 32 vars */) = 0`
 
 A bunch of setup is done by the C library. By the end (before the exit_group call), the program performs a `stat` and a `write` to the file descriptor 1: `write(1</dev/pts/7>, "Hello World", 11Hello World) = 11` which effectively writes to standard output (stdout), ie the terminal.
+
+### Dynamic Linked Program
 
 Let's observe what happens when doing the same thing on the dynamically linked program this time:
 
@@ -131,11 +139,11 @@ close(3</usr/lib/x86_64-linux-gnu/libc.so.6>) = 0
 Let's explain what happens here:
 
 - Block [1]:
-This block checks for any libraries that should be "pre-loaded", even before the glibc. The return code of the `access` is -1, signaling that there are not shared libraries to be pre-loaded.  
+This block checks for any libraries that should be "pre-loaded", even before the glibc. The return code of the `access` is -1, signaling that there are not shared libraries to be pre-loaded.
 We talk about this pre-loading a bit more in-depth later on.
 
 - Block [2]:
-The gist here is the presence of `ld.so.cache` file. This file is a cache file that contains entries in the form of: `library --> path/of/the/lib/in/filesystem`.  
+The gist here is the presence of `ld.so.cache` file. This file is a cache file that contains entries in the form of: `library --> path/of/the/lib/in/filesystem`.
 This file is constructed at boot and can be inspected via command `ldconfig -p` (requires root permissions):
 
 ```bash
@@ -168,8 +176,8 @@ mmap(0x7a6f23dff000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENY
 mmap(0x7a6f23e05000, 52624, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7a6f23e05000
 ```
 
-The 1st mmap: loads the entire library in memory in read-only so the loader can read headers, symbols and ata.  
-The 2nd mmap: loads the .text segment (executable code) starting from the virtual address (first argument) at a given offset.  
+The 1st mmap: loads the entire library in memory in read-only so the loader can read headers, symbols and ata.
+The 2nd mmap: loads the .text segment (executable code) starting from the virtual address (first argument) at a given offset.
 The 3rd mmap: loads constants, string literals and read-only globals.
 The 4th mmap: loads global variables and writable memory inside libc: env variables, memory for mallocs (arenas),etc.
 The 5th mmap: anonymous mapping which is writable, mainly for runtime structures needed by glibc.
@@ -239,7 +247,7 @@ We will also define a dummy function `add` on another library that we will compi
 
 ```bash
 # The dummy library
-➜ cat libdummy.c 
+➜ cat libdummy.c
 int add(int a, int b) { return 0; }
 
 ➜ gcc -shared -fPIC -o libdummy.so libdummy.c
@@ -298,7 +306,7 @@ As we can use LD_PRELOAD to supersede calls from libraries, and the libc is itse
 For instance, we can hijack hostname resolution. Let's try curl'ing google.com, you should see this normal output:
 
 ```bash
-➜ curl -I google.com 
+➜ curl -I google.com
 HTTP/1.1 301 Moved Permanently
 [...]
 ```
@@ -352,7 +360,7 @@ Our hook has printed !
 
 Now if we managed to "override" the behavior of the library call, we can also slightly modify how it works. For instance, we can have all calls to google.com via this library go to 1.2.3.4 instead. Let's slightly modify our program so it does the following:
 
-- Intercepting the calls to `getaddrinfo` from other programs (typically `curl`).  
+- Intercepting the calls to `getaddrinfo` from other programs (typically `curl`).
 - Checking if the address they want to resolve is google.com
   - If yes: replace it with a hardcoded 1.2.3.4 address.
   - If no: call the original `getaddrinfo`.
@@ -432,5 +440,5 @@ Note that syscalls can be called otherwise using the `syscall` function.
 This function takes as arguments the syscall number (constants like SYS_write) and the arguments for that syscall.
 
 There are two common ways syscalls reach the kernel:
- - Via the `syscall()` function in libc. This is a dynamic symbol which can be overriden by LD_PRELOAD.  
- - Via the `syscall` CPU instruction. This is used internally by glibc or can be invoked manually when writing inline assembly. Calling the assembly instruction bypasses all libraries, it is thus not possible to intercept it using LD_PRELOAD  
+ - Via the `syscall()` function in libc. This is a dynamic symbol which can be overriden by LD_PRELOAD.
+ - Via the `syscall` CPU instruction. This is used internally by glibc or can be invoked manually when writing inline assembly. Calling the assembly instruction bypasses all libraries, it is thus not possible to intercept it using LD_PRELOAD

@@ -1,4 +1,12 @@
-## Professional experiences 💻
+# Amine Rachyd - Resume
+
+## Professional Summary
+
+Service Reliability Engineer (SRE) at Amadeus IT Group with a passion for cloud infrastructure, distributed systems, and automation. Experience across hybrid cloud environments, Kubernetes orchestration, and DevSecOps practices.
+
+---
+
+## Professional Experiences 💻
 
 ### Amadeus | Nice, France | April 2023 - Present
 
@@ -44,15 +52,26 @@
 
 - Two years of advanced undergraduate studies in mathematics and physics (MP) at the Moulay Youssef high school
 
-## Some academic projects 📚
+---
 
-- Distributed system for data analysis using Kubernetes and Spark, I took mostly part of the Kubernetes part of the project, deploying with Terraform and Ansible
-- IOT project: building an automatic arousing system
-- Cloud native learning management system, [Github link](https://github.com/INPT-LMS/INPT-LMS)
+## Key Projects 📚
+
+### Distributed Data Analysis System
+- Kubernetes and Spark cluster deployment
+- Infrastructure-as-Code using Terraform and Ansible
+- Automated scaling and orchestration
+
+### IoT Automation System
+- Automatic arousing/alert system
+- Real-time sensor processing
+
+### Cloud-Native Learning Management System
+- Full-stack LMS platform
+- [GitHub](https://github.com/INPT-LMS/INPT-LMS)
 
 ---
 
-## Technical skills
+## Technical Skills
 
 | Topic                    | Skills and tools                                                                       |
 | ------------------------ | -------------------------------------------------------------------------------------- |
@@ -65,16 +84,16 @@
 
 ---
 
-## Miscellaneous
+## Additional Information
 
 ### Languages
 
-| Language | Level                         |
-| -------- | ----------------------------- |
-| Arabic   | Native                        |
-| French   | Spoken and written            |
-| English  | Spoken and written            |
-| Spanish  | Basic knowledge               |
+| Language | Level              |
+| -------- | ------------------ |
+| Arabic   | Native             |
+| French   | Spoken and written |
+| English  | Spoken and written |
+| Spanish  | Basic knowledge    |
 
 ### Associative life
 

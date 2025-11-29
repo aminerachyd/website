@@ -1,8 +1,10 @@
 # Kubernetes
 
-## Force delete of namespace
+## Cluster Management
 
-Top answer from [this thread](https://stackoverflow.com/a/53661717)  
+### Force Delete Namespace
+
+Top answer from [this thread](https://stackoverflow.com/a/53661717)
 This forces the delete of a namespace stuck in "Terminating" state
 
 ```bash
@@ -14,7 +16,11 @@ curl -k -H "Content-Type: application/json" -X PUT --data-binary @temp.json 127.
 )
 ```
 
-## Give pod capability to access host network
+---
+
+## Pod Configuration & Networking
+
+### Give Pod Capability to Access Host Network
 
 To give pod access to host network, you can enable it via the `hostNetwork` field in the Pod spec:
 
@@ -26,6 +32,8 @@ spec:
 ```
 
 ---
+
+### Configure Custom DNS
 
 ## Make pods resolve DNS queries using custom DNS server
 
@@ -43,12 +51,14 @@ data:
 
 ---
 
+### Run Containers with VPN
+
 ## Running containers with a VPN
 
 Kubernetes pods regroup containers which share the same network namespace.
 This essentially means that if a container is connected to a VPN, the containers in the same pod will also be connected to the same VPN (you can check by running `curl ip.me` from one of the containers of the pod).
 
-1. Run your "VPN" container. [Gluetun](https://github.com/qdm12/gluetun) is a cool project which lets you run a container that connects to a particular VPN provider (multiple ones supported).  
+1. Run your "VPN" container. [Gluetun](https://github.com/qdm12/gluetun) is a cool project which lets you run a container that connects to a particular VPN provider (multiple ones supported).
    You can configure it as follows with env variables, for example with [Mullvad VPN](https://mullvad.net):
 
    ```yaml
@@ -74,13 +84,19 @@ This essentially means that if a container is connected to a VPN, the containers
 
 ---
 
+## Advanced Features
+
+### Validation Webhooks
+
 ## Validation webhooks in Kubernetes
 
 Kubernetes exposes two resources to validate resources before their creation: `validatingwebhookconfigurations` and `mutatingwebhookconfigurations`.
-CRDs and operators can define their own webhooks that the API server will call to check whether the resource to be created is valid or not.  
+CRDs and operators can define their own webhooks that the API server will call to check whether the resource to be created is valid or not.
 The order for calling webhook is: mutating webhooks > validating webhook. [Link to doc.](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 
 ---
+
+### Volume Snapshots
 
 ## Volume snapshots
 
@@ -146,13 +162,13 @@ spec:
   backupOwnerReference: none
   cluster:
     # Name of the cluster to backup, the cluster must already exist and be configured for backups
-    name: mypg                
+    name: mypg
   # Other methods are available, see kubectl explain scheduledbackup.spec.method
-  method: volumeSnapshot      
+  method: volumeSnapshot
   online: true
   # This can take a "cron-like" format
   # more details here: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
-  schedule: '@every 12h'     
+  schedule: '@every 12h'
   suspend: false
   target: prefer-standby
 ```
@@ -163,8 +179,8 @@ Create a cluster that is configured for backups, and can be recovered using a ba
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  # Cluster name, has to match the one used in the backup 
-  name: mypg 
+  # Cluster name, has to match the one used in the backup
+  name: mypg
   namespace: mynamespace
 spec:
   # Other configs redacted
@@ -182,9 +198,9 @@ spec:
   bootstrap:
     recovery:
       backup:
-        # This is the name of the backup object 
+        # This is the name of the backup object
         # created by the scheduled backup which will be used to restore data to the cluster
-        name: mypg-scheduled-backup-XXXX 
+        name: mypg-scheduled-backup-XXXX
 ```
 
 Cluster restores are not performed "in-place" on an existing cluster. You can use the data uploaded to the object storage to bootstrap a new cluster from a previously taken backup. The operator will orchestrate the recovery process using the barman-cloud-restore tool (for the base backup) and the barman-cloud-wal-restore tool (for WAL files, including parallel support, if requested).
@@ -202,7 +218,7 @@ metadata:
   name: mysvc
 spec:
   type: LoadBalancer            # Works with ClusterIP and LoadBalancer types
-                                # Doesn't work with Ingress and NodePort configuration 
+                                # Doesn't work with Ingress and NodePort configuration
 
   sessionAffinity: ClientIP     # Defaults to None
   sessionAffinityConfig:

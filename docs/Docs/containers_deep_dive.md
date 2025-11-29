@@ -1,4 +1,6 @@
-# Linux container primitives
+# Linux Container Primitives
+
+## Overview
 
 These are notes taken from [this video](https://www.youtube.com/watch?v=x1npPrzyKfs).
 The demos are done via Docker, the notes here are using Podman instead.
@@ -9,10 +11,18 @@ Containers are a combination of some Linux primitives:
 - Control groups
 - Union filesystem
 
-## Control groups (cgroups)
+---
 
-Organize and track processes in a system. Used to track resource usage of a group of processes.  
-We can limit or prioritize resource utilization with cgroups.  
+## Namespaces
+
+### Overview
+
+---
+
+## Control Groups (cgroups)
+
+Organize and track processes in a system. Used to track resource usage of a group of processes.
+We can limit or prioritize resource utilization with cgroups.
 Control groups is an framework, implemented by concrete subsystems:
 
 - Memory
@@ -36,7 +46,7 @@ Cgroup interaction can be done via virtual filesystem mounted on **/sys/fs/cgrou
 - The structure is a hierarchy, we can have the root cgroup (located at the top of the <SUBSYSTEM> directory) and child cgroups (directories under <SUBSYSTEM>)
 - Each **task** file for a given cgroup (subsystem) contains all pids of processes in it. Moving a process to another cgroup is equivalent to writing its pid in the target cgroup.
 
-### Demo
+### Demo and Examples
 
 ```bash
 ls /sys/fs/cgroup/devices
@@ -46,17 +56,17 @@ cgroup.procs           dev-mqueue.mount     devices.list  release_agent         
 cgroup.sane_behavior   devices.allow        init.scope    sys-fs-fuse-connections.mount  system.slice
 ```
 
-Files that control how cgroup subsystem is configured, prefixed with cgroup.  
-Files related with devices, related to devices.  
-Tasks has the pids that are associated to this cgroup.  
+Files that control how cgroup subsystem is configured, prefixed with cgroup.
+Files related with devices, related to devices.
+Tasks has the pids that are associated to this cgroup.
 
 ```bash
 # Special variable that returns the pid of the current shell
-$ echo $$ 
+$ echo $$
 5625
 
 # Info about what cgroups the 5625 process is associated to
-$ cat /proc/5625/cgroup  
+$ cat /proc/5625/cgroup
 15:name=systemd:/
 14:misc:/
 13:rdma:/
@@ -166,9 +176,9 @@ References: linux kernel source Documentation/cgroup-v1
 
 ## Namespaces
 
-Isolation of a resource, they control visibility of a resource.  
-Changes to a resources within a namespace are invisible outside the namespace.  
-Resources can be mapped with permission changes.  
+Isolation of a resource, they control visibility of a resource.
+Changes to a resources within a namespace are invisible outside the namespace.
+Resources can be mapped with permission changes.
 
 Resources are (include?):
 
@@ -185,17 +195,17 @@ Like cgroups, namespaces are independent and can be shared.
 
 ### The network namespace
 
-Frequently used in containers.  
-The network ns gives a process a separate view of the network, with different network interfaces and routing rules.  
-Network namespaces can be connected together using a virtual ethernet device pair (veth).  
+Frequently used in containers.
+The network ns gives a process a separate view of the network, with different network interfaces and routing rules.
+Network namespaces can be connected together using a virtual ethernet device pair (veth).
 For instance, Docker uses a separate network namespace **per** container (same network namespace on containers running on the same Docker network ?)
 
 Kubernetes pods: containers share the same network namespace
 
 ### The mount namespace
 
-Used for giving containers their own filesystem.  
-Container image is mounted as the root filesystem.  
+Used for giving containers their own filesystem.
+Container image is mounted as the root filesystem.
 "Volumes" are mounts in the container filesystem to share data.
 
 - The procfs virtual filesystem gives information about the namespace of a process
@@ -263,7 +273,7 @@ uts:[4026532254]
 
 # To keep this namespace alive, create a bindmount
 $ touch /var/run/netns/lfnw # Create a file, whenever you want
-$ mount --bind /proc/$$/ns/net /var/run/netns/lfnw # bind mount the namespace 
+$ mount --bind /proc/$$/ns/net /var/run/netns/lfnw # bind mount the namespace
 
 # List the persistent namespace
 $ ip netns list
@@ -271,7 +281,7 @@ lfnw
 $ ip netns identify $$
 lfnw
 
-# Back to host, the ip netns list command still lists the namesapce, but the identify doesn't return it as the process isnt running on that ns 
+# Back to host, the ip netns list command still lists the namesapce, but the identify doesn't return it as the process isnt running on that ns
 # To exec a command on that ns
 $ sudo ip netns exec lfnw ip link
 1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000
@@ -303,7 +313,7 @@ $ sudo nsenter --target 6377 --net ip addr
 
 # Running Nginx in the container network namespace. The binary is located on the host
 $ sudo nsenter --target 6377 --net nginx
-$ curl localhost 
+$ curl localhost
 curl: (7) Failed to connect to localhost port 80 after 0 ms: Couldn't connect to server
 
 # But inside the container, Nginx is running
@@ -366,9 +376,9 @@ Idea: Joins two directories (upper and lower) to form a union
 - Overlay filesystems can be created with mount, need to specify a lowerdir, and upperdir and a workdir (for making diffs)
   - An upperdir can have multiple lowerdirs (arguments of the overlay fs when viewing it with mount command)
 
-Both podman and docker use overlay.  
-Podman writes overlay filesystmes: `~/.local/share/containers/storage/overlay`  
-The upperdir is the final filesystem as seen by the container. Writing to the upperdir is equal to writing to the filesystem.  
+Both podman and docker use overlay.
+Podman writes overlay filesystmes: `~/.local/share/containers/storage/overlay`
+The upperdir is the final filesystem as seen by the container. Writing to the upperdir is equal to writing to the filesystem.
 Writing to a lowerdir can make the files appear on the upperdir (and on the container filesystem, but it can break image immutability)
 
 ### Demo
@@ -384,7 +394,7 @@ Creating an image with multiple layers:
 
 ```bash
 # Dockerfile content:
-FROM docker.io/amazonlinux:latest 
+FROM docker.io/amazonlinux:latest
 RUN echo "hello world" > hello
 RUN rm hello
 
