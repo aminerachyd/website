@@ -41,7 +41,9 @@ ssh-keygen -t rsa -b 4096 -C "aminerachyd99@example.com"
 ```
 
 2. Add the SSH key to Github
+
 3. Edit your SSH config (`~/.ssh/config` or a file under `~/.ssh/config.d/`)
+
 ```
 # Default GitHub
 Host github.com
@@ -59,11 +61,13 @@ Host github-second
 ```
 
 4. Set the remote URL using the SSH host we added
+
 ```bash
 git remote set-url origin git@github-second:aminerachyd/argo-cd.git
 ```
 
 5. Test:
+
 ```bash
 $ ssh -T git@github-second
 Hi aminerachyd! You've successfully authenticated, but GitHub does not provide shell access

@@ -88,8 +88,6 @@ This essentially means that if a container is connected to a VPN, the containers
 
 ### Validation Webhooks
 
-## Validation webhooks in Kubernetes
-
 Kubernetes exposes two resources to validate resources before their creation: `validatingwebhookconfigurations` and `mutatingwebhookconfigurations`.
 CRDs and operators can define their own webhooks that the API server will call to check whether the resource to be created is valid or not.
 The order for calling webhook is: mutating webhooks > validating webhook. [Link to doc.](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
@@ -98,11 +96,9 @@ The order for calling webhook is: mutating webhooks > validating webhook. [Link 
 
 ### Volume Snapshots
 
-## Volume snapshots
-
 Reference to doc: [Volume snapshots](https://kubernetes.io/docs/concepts/storage/volume-snapshots/)
 
-### Definition
+#### Definition
 
 `VolumeSnapshots` and `VolumeSnapshotContent` are resources that are analogous to `PersistentVolumeClaim` and `PersistentVolume`.
 
@@ -134,13 +130,12 @@ Data from a snapshot can be restored into a volume via the `dataSource` field in
 
 ### Lifecycle
 
-- Provisioning: either manually (an cluster admin creates a `VolumeSnapshotContent`) or dynamically (via a `VolumeSnapshotClass`)
+### Lifecycle
 
-- Binding: the `VolumeSnapshot` is bound to the `VolumeSnapshotContent` in a 1-to-1 mapping.
-
-- Protection of the PVC: when a snapshot is being taken, the PVC is in-use. When deletion of the PVC is requested, it won't be deleted until the snapshot is completed.
-
-- Delete: triggered by deleting the `VolumeSnapshot` resource. The underlying snapshot and `VolumeSnapshotContent` are kept depending on the `DeletionPolicy` (can be set to `Delete` or `Retain`)
+- **Provisioning**: either manually (an cluster admin creates a `VolumeSnapshotContent`) or dynamically (via a `VolumeSnapshotClass`)
+- **Binding**: the `VolumeSnapshot` is bound to the `VolumeSnapshotContent` in a 1-to-1 mapping
+- **Protection of the PVC**: when a snapshot is being taken, the PVC is in-use. When deletion of the PVC is requested, it won't be deleted until the snapshot is completed
+- **Delete**: triggered by deleting the `VolumeSnapshot` resource. The underlying snapshot and `VolumeSnapshotContent` are kept depending on the `DeletionPolicy` (can be set to `Delete` or `Retain`)
 
 ---
 

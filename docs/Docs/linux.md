@@ -102,20 +102,21 @@ The previous ordering determines priority of unit files to be started by systemd
 ### systemd unit file structure
 
 The file is case sensitive.
-3 primary sections:
 
-- Unit: General info about the unit
+**3 primary sections:**
+
+- **Unit**: General info about the unit
   - Description: What the unit is for
   - Wants: Pre-req unit that is required before this unit can start up
   - After: Determines the order of pre-req units
   - Documentation: Doc source of the unit
-- Service: Configuration specific to service files
+- **Service**: Configuration specific to service files
   - Type: simple/notify: default service type. How systemd should assume if a system is running (simple: no assumption, notify: the program talks to systemd)
   - ExecStart: What happens when process is started up
   - ExecStop: What happens when process is stopped
   - ExecReload: What happens when process is reloaded (sudo systemctl reload), not a full restart of the service. Reload configuration changes. Not always available in services
-- Install: Not required, what happens when a unit file is enabled/disabled
-  - WantedBy: Dependency relationship.
+- **Install**: Not required, what happens when a unit file is enabled/disabled
+  - WantedBy: Dependency relationship
 
 ### Customizing unit files
 
@@ -151,7 +152,7 @@ systemctl daemon-reload
 Using systemd-resolved, you can create a file under `/etc/systemd/resolved/resolved.conf.d/`, call it `custom.conf`.
 In this file, add the following:
 
-```toml title="/etc/systemd/resolved/resolved.conf.d/custom.conf"
+```toml
 [Resolve]
 Domains=~<SUBDOMAIN>
 DNS=<YOUR_DNS_SERVER_IP>
@@ -170,8 +171,10 @@ sudo systemctl restart systemd-resolved
 
 Useful when the version in the package manager isn't yet up to date with the latest release. Add the following line in `~/.config/discord/settings.json`:
 
-```json title="~/.config.discord/settings.json"
-SKIP_HOST_UPDATE: true
+```json
+{
+  "SKIP_HOST_UPDATE": true
+}
 ```
 
 ---
@@ -181,14 +184,12 @@ SKIP_HOST_UPDATE: true
 You can do an ad-hoc raise of the `max_user_instances` parameter:
 
 ```bash
-echo 256 | sudo tee /proc/sys/fs/inotify/max_user_instances # (1)!
+echo 256 | sudo tee /proc/sys/fs/inotify/max_user_instances
 ```
-
-1. You can put a higher value than 256 if needed
 
 You can also persist this configuration by adding a configuration file under `/etc/sysctl.d/`, call it `custom.conf` with the following line:
 
-```bash title="/etc/sysctl.d/custom.conf"
+```bash
 fs.inotify.max_user_instances = 256
 ```
 
@@ -198,23 +199,16 @@ fs.inotify.max_user_instances = 256
 
 Add the following line in your `~/.config/gtk-3.0/settings.ini` file (or create it if it doesn't exist):
 
-```bash title="~/.config/gtk-3/settings.ini"
+```bash
 [Settings]
 gtk-application-prefer-dark-theme=1
 ```
 
 ---
 
-- TuneD profiles
-- Troubleshooting and verification
+## System Administration - TuneD Profiles
 
----
-
-## System Calls & Tracing
-
-### Syscalls Tracing
-
-You can verify if TuneD is running via the command
+You can verify if TuneD is running via the command:
 
 ```bash
 systemctl status tuned
@@ -232,11 +226,11 @@ To set a profile, use the following command (will require admin privilege)
 tuned-adm profile <PROFILE_NAME>
 ```
 
----
+## System Calls & Tracing
 
-## Syscalls tracing
+### Syscalls Tracing
 
-Note: `strace` prints its output to stderr to avoid mixing it with the output of the *traced command*, we need to forward that output to stdout
+Note: `strace` prints its output to stderr to avoid mixing it with the output of the *traced command*, we need to forward that output to stdout.
 
 - Trace filesystem syscalls, replacing all file descriptors by file paths and grepping:
 
@@ -261,17 +255,22 @@ $ echo ${TOTO#ref/*/} # This pattern-matches the variable and extracts the remai
 ## Resize (extend) disk
 
 ```bash
-lsblk # find which disk you want to extend
-growpart /dev/<DISK_NAME> <PARTIITON_NO>
+lsblk
+growpart /dev/<DISK_NAME> <PARTITION_NO>
 resize2fs /dev/<DISK_NAME_PARTITION_NO>
 ```
 
 ---
 
-## Memory diagnosys tools
+## Memory Diagnosis Tools
 
-Miscellanous stuff noted from [this video](https://www.youtube.com/watch?v=HdM04UBNcgE).
-`free`:
+Miscellaneous stuff noted from [this video](https://www.youtube.com/watch?v=HdM04UBNcgE).
+
+### free
+
+```bash
+# This is printed in mebibytes
+~ free -h```
 
 ```bash
 # This is printed in mebibytes
@@ -281,7 +280,7 @@ Mem:            15Gi       2.9Gi        12Gi        15Mi       470Mi        12Gi
 Swap:          4.0Gi          0B       4.0Gi
 ```
 
-`vmstat`:
+### vmstat
 
 ```bash
 # Gives slightly more info compared to free
@@ -300,7 +299,7 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
  0  0      0 12765212  16820 465808    0    0     0    60  709 1608  0  0 100  0  0  0
 ```
 
-`ps`:
+### ps
 
 ```bash
 # Shows all the processes, users running them and extended informations
@@ -315,10 +314,11 @@ root           2  0.0  0.0   2616  1444 ?        Sl   18:53   0:00 /init
 ```
 
 `top`:
+
 Press 1 to print info about all cores load.
 Interesting fields for memory are VIRT (vm), RES (RSS), SHR (shared memory).
 
-`swapon`:
+### swapon
 
 ```bash
 # Show all swap disks and their usage

@@ -116,72 +116,67 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_gvt=1 iommu=pt pcie
 
 The main info is that this enables IOMMU which allows devices to be directly assigned to virtual machines. Devices are grouped in IOMMU groups, and whole groups need to be passed to VMs for the device to be able to function, yet we don't necessarily want to passthrough all devices in a group. `pcie_acs_override` is an option that splits devices onto their own separate IOMMU group. This command also blacklists some drivers from being loaded on boot.
 
-2. Update GRUB, run: `update-grub`
+2. Update GRUB, run:
+
+   ```bash
+   update-grub
+   ```
+
 3. Add these modules to `/etc/modules`:
 
-```conf
-vfio
-vfio_iommu_type1
-vfio_pci
-vfio_virqfd
-kvmgt
-```
+   ```conf
+   vfio
+   vfio_iommu_type1
+   vfio_pci
+   vfio_virqfd
+   kvmgt
+   ```
 
 In short these kernel modules provide support for passing through devices to virtual machins. The last one, `kvmgt` is specific for Intel, it enables GPU virtualization so a GPU can be shared across multiples virtual machines.
 
 4. Add a file: `/etc/modprobe.d/iommu_unsafe_interrupts.conf` with content:
 
-```conf
-options vfio_iommu_type1 allow_unsafe_interrupts=1
-```
-
-This disables a security isolation mechanism in order to have better perfomance when the PCI device is passed through.
+   ```conf
+   options vfio_iommu_type1 allow_unsafe_interrupts=1
+   ```
 
 5. Add a file: `/etc/modprobe.d/kvm.conf` with content:
 
-```conf
-options kvm ignore_msrs=1
-```
-
-MSR are Model Specific Registers. This instructs KVM to avoid their emulation when they are being accessed by the virtual machine.
+   ```conf
+   options kvm ignore_msrs=1
+   ```
 
 6. Blacklist the GPU drivers, edit the file `/etc/modprobe.d/blacklist.conf` and add:
 
-```conf
-blacklist radeon
-blacklist nouveau
-blacklist nvidia
-blacklist nvidiafb
-```
-
-This blacklisting is done to prevent the kernel from loading these modules after the system has booted.
+   ```conf
+   blacklist radeon
+   blacklist nouveau
+   blacklist nvidia
+   blacklist nvidiafb
+   ```
 
 7. Add GPU to vfio
 
-List PCI devices and note the GPU PCI number:
+   List PCI devices and note the GPU PCI number:
 
-```bash
-root@pve1:~# lspci
-[...]
-00:02.0 VGA compatible controller: Intel Corporation CoffeeLake-S GT2 [UHD Graphics 630]
-[...]
-```
+   ```bash
+   root@pve1:~# lspci
+   [...]
+   00:02.0 VGA compatible controller: Intel Corporation CoffeeLake-S GT2 [UHD Graphics 630]
+   [...]
+   ```
 
-Then get the GPU vendors number:
+   Then get the GPU vendors number:
 
-```bash
-root@pve1:~# lspci -n -s 00:02.0
-00:02.0 0300: 8086:3e92
-```
+   ```bash
+   root@pve1:~# lspci -n -s 00:02.0
+   00:02.0 0300: 8086:3e92
+   ```
 
-Add then this in the file `/etc/modprobe.d/vfio.conf`:
+   Add then this in the file `/etc/modprobe.d/vfio.conf`:
 
-```conf
-options vfio-pci ids=8086:3e92 disable_vga=1
-```
+   ```conf
+   options vfio-pci ids=8086:3e92 disable_vga=1
+   ```
 
-This instructs the VFIO module to take control of the PCI device, essentially making it possible to pass it through to VMs
-
-8. Run `udpate-initramfs -u` and restart
-
-After that, you can add a PCI device to your virtual machine from the Hardware tab on Proxmox GUI. Use the Raw device choice and select the corresponding device. For the Intel iGPU, keep the options `Primary GPU` and `All Functions` unticked.
+8. Run `update-initramfs -u` and restart
