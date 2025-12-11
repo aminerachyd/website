@@ -18,7 +18,7 @@ However, I recently migrated some of my services to another server and ran them 
 
 Kubernetes provides a way to reference external services via `ExternalName` type services.
 
-These services essentially create a CNAME DNS record that points to the external service. They can be defined as such:
+These services essentially create somewhat of CNAME DNS record in the cluster that points to the external service. They can be defined as such:
 
 ```yaml
 apiVersion: v1
@@ -55,11 +55,11 @@ So far so good, until I'm supposed to host multiple applications via Docker on t
 
 ## Port problems on a single server
 
-Let's say I have two services running on `server.homelab`:
+Let's say I have two services running on `server.homelab` (which is outside the Kubernetes cluster):
 - `app1` exposed on port 8080 -> should be accessible via `server.homelab:8080`, I want to reach it via `app1.global.homelab`
 - `app2` exposed on port 9090 -> should be accessible via `server.homelab:9090`, I want to reach it via `app2.global.homelab`
 
-The two corresponding `ExternalName` services would be:
+The two corresponding `ExternalName` services would look like:
 
 ```yaml
 apiVersion: v1
@@ -101,7 +101,7 @@ To solve this problem, I can use an Ingress resource to route traffic based on t
 
 Instead of defining external DNS entries on the `ExternalName` services, I can instead create ingress rules that route traffic to the correct service based on the hostname.
 
-The aim is that instead of relying only on DNS resolution (which resolves only to IP addresses but ignores the port). I have to go through the ingress controller which can route traffic based on the hostname to the correct service and port.
+The aim is that instead of relying only on DNS resolution from my Pi-Hole (which resolves only to IP addresses but ignores the port), I have to go through the ingress controller which can route traffic based on the hostname to the correct service and port.
 
 If we consider that my ingress controller is exposed via `ingress.incluster.homelab`, I can define the following service and ingress resource for `app1`:
 
@@ -138,13 +138,20 @@ spec:
         pathType: Prefix
 ```
 
-The magic annotations is `external-dns.alpha.kubernetes.io/target: ingress.incluster.homelab` which tells ExternalDNS to create a DNS entry that points to the ingress controller instead of the service itself.
+The magic annotations is `external-dns.alpha.kubernetes.io/target: ingress.incluster.homelab` which tells ExternalDNS to create a DNS entry for this ingress host (`app1.global.homelab`) that points to the ingress controller instead of the service itself.
 
-So here I have a CNAME record:
-- `app1.global.homelab` -> `ingress.incluster.homelab`
+So here I would have in my Pi-Hole a CNAME record: `app1.global.homelab` -> `ingress.incluster.homelab`
 
-So when I access `app1.global.homelab`:
+When I access `app1.global.homelab`:
 - The request host is at `app1.global.homelab`
 - DNS resolution points to `ingress.incluster.homelab`
 - The ingress controller receives the request, sees that the host is `app1.global.homelab` and routes the traffic to the `app1` service on port 8080
 - The `app1` service is an `ExternalName` service that points to `server.homelab:8080`, so the request is forwarded to the correct external service
+
+## But Nginx Proxy Manager does the same thing !
+
+You might be thinking: "Why not just use Nginx Proxy Manager on the external server?" You're absolutely right! Nginx Proxy Manager can handle this exact scenario and would work just as well technically.
+
+However I do still have some services running inside Kubernetes and these are managed via GitOps with ArgoCD and external DNS.
+
+Having a separate Nginx Proxy Manager instance outside of Kubernetes would mean managing two separate configurations and DNS records: one inside Kubernetes for the services running there, and another in Nginx Proxy Manager for the external services. Not to mention that the Nginx Proxy Manager configuration would not be version controlled in Git, making it less than ideal for my workflow.
