@@ -1,3 +1,10 @@
+---
+tags:
+  - keycloak
+  - oauth
+  - oidc
+---
+
 # Keycloak
 
 ## Concepts & Definitions

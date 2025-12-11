@@ -1,3 +1,10 @@
+---
+tags:
+  - kubernetes
+  - containers
+  - networking
+---
+
 # Kubernetes
 
 ## Cluster Management
@@ -31,11 +38,7 @@ spec:
   # [...]
 ```
 
----
-
 ### Configure Custom DNS
-
-## Make pods resolve DNS queries using custom DNS server
 
 Under CoreDNS, you can modify the configmap `coredns` in `kube-system` namespace and add the following:
 
@@ -49,38 +52,34 @@ data:
     }
 ```
 
----
-
-### Run Containers with VPN
-
-## Running containers with a VPN
+### Running Containers with a VPN
 
 Kubernetes pods regroup containers which share the same network namespace.
 This essentially means that if a container is connected to a VPN, the containers in the same pod will also be connected to the same VPN (you can check by running `curl ip.me` from one of the containers of the pod).
 
-1. Run your "VPN" container. [Gluetun](https://github.com/qdm12/gluetun) is a cool project which lets you run a container that connects to a particular VPN provider (multiple ones supported).
-   You can configure it as follows with env variables, for example with [Mullvad VPN](https://mullvad.net):
+[Gluetun](https://github.com/qdm12/gluetun) is a cool project which lets you run a container that connects to a particular VPN provider (multiple ones supported).
+You can configure it as follows with env variables, for example with [Mullvad VPN](https://mullvad.net):
 
-   ```yaml
-   env:
-   - name: VPN_SERVICE_PROVIDER
-     value: "mullvad"
-   - name: VPN_TYPE
-     value: "openvpn"
-   - name: OPENVPN_USER
-     value: <YOUR_MULLVAD_VPN_ID>
-   ```
+```yaml
+env:
+- name: VPN_SERVICE_PROVIDER
+  value: "mullvad"
+- name: VPN_TYPE
+  value: "openvpn"
+- name: OPENVPN_USER
+  value: <YOUR_MULLVAD_VPN_ID>
+```
 
-   The Gluetun container has also to be privileged and be explicitly given the NET_ADMIN capability. This can be done through the securityContext field in the pod spec:
+The Gluetun container has also to be privileged and be explicitly given the NET_ADMIN capability. This can be done through the securityContext field in the pod spec:
 
-   ```yaml
-   securityContext:
-     privileged: true
-     capabilities:
-       add: ["NET_ADMIN"]
-   ```
+```yaml
+securityContext:
+  privileged: true
+  capabilities:
+    add: ["NET_ADMIN"]
+```
 
-2. Run your desired container alongside it.
+Run your desired container alongside it in the same pod.
 
 ---
 
@@ -127,8 +126,6 @@ The deployment process of `VolumeSnapshot` includes two additional resources:
 - A CSI snapshotter, watches `VolumeSnapshotContent` and is responsible for triggering `CreateSnapshot` and `DeleteSnapshot` operations against a CSI endpoint.
 
 Data from a snapshot can be restored into a volume via the `dataSource` field in a `PersistentVolumeClaim` object.
-
-### Lifecycle
 
 ### Lifecycle
 

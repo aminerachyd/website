@@ -1,3 +1,8 @@
+---
+tags:
+  - git
+---
+
 # Git
 
 ## Viewing History & Search

@@ -2,6 +2,14 @@ Written on 2023-07-09
 
 ----
 
+---
+tags:
+  - books
+  - software-engineering
+  - professionalism
+  - career
+---
+
 # The Clean Coder
 
 It's a book written by Robert C. Martin (Uncle Bob) in which he explains some guidelines as to how to become a *professional*, the book might target mainly programmers but it has a set of advises and feedbacks that could be valuable even for someone outside of the software development, IT and tech fields.

@@ -2,7 +2,15 @@ Written on 2023-07-19
 
 ----
 
-# Clean code
+---
+tags:
+  - books
+  - software-engineering
+  - best-practices
+  - code-quality
+---
+
+# Clean Code
 
 Robert C. Martin (Uncle Bob) discusses in this book the cleanliness of code, and how it's important to have some guidelines that every professional (ie [clean coder](src/book_reads/the_clean_coder)) should follow in order to produce code that is clean, easy to maintain and easy to read.
 

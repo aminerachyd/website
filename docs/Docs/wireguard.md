@@ -1,3 +1,10 @@
+---
+tags:
+  - vpn
+  - networking
+  - linux
+---
+
 # Wireguard
 
 ## Overview

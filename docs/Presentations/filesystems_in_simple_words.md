@@ -1,4 +1,12 @@
-# File Systems in Simple Words - Blablaconf 2024, Backend Track
+---
+tags:
+  - presentations
+  - filesystems
+  - storage
+  - linux
+---
+
+# Filesystems in Simple Words
 
 ## Table of Contents
 

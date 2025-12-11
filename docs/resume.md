@@ -1,6 +1,6 @@
 # Amine Rachyd - Resume
 
-## Professional Summary
+# Professional Resume
 
 Service Reliability Engineer (SRE) at Amadeus IT Group with a passion for cloud infrastructure, distributed systems, and automation. Experience across hybrid cloud environments, Kubernetes orchestration, and DevSecOps practices.
 

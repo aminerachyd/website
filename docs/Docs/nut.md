@@ -1,4 +1,11 @@
-# NUT (Network UPS Tools)
+---
+tags:
+  - nut
+  - ups
+  - linux
+---
+
+# NUT - Network UPS Tools
 
 ## Overview
 

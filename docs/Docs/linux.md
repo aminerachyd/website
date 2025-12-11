@@ -1,3 +1,10 @@
+---
+tags:
+  - linux
+  - systemd
+  - filesystems
+---
+
 # Linux
 
 ## Filesystems & Modules

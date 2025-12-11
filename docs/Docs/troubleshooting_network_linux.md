@@ -1,3 +1,10 @@
+---
+tags:
+  - networking
+  - troubleshooting
+  - linux
+---
+
 # Linux Network Troubleshooting
 
 Notes from [this livestream](https://www.youtube.com/live/dHa2Bja85U0)

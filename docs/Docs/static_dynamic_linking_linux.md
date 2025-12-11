@@ -1,4 +1,9 @@
-# Static Linking, Dynamic Linking and LD_PRELOAD
+---
+tags:
+  - linux
+---
+
+# Static and Dynamic Linking on Linux
 
 ## Introduction
 

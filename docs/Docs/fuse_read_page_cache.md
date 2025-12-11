@@ -1,3 +1,10 @@
+---
+tags:
+  - fuse
+  - linux
+  - filesystem
+---
+
 # From FUSE Read to Page Cache
 
 ## Overview
